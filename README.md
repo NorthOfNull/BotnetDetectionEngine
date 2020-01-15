@@ -5,11 +5,9 @@ A Flow-based Botnet Detection Engine as a Proof-of-Concept application of a Bio-
 
 Intended to be ran on a gateway-connected switch, with port mirroring enabled for the detector PC to collect network flows.
 
-
 ### Prerequisites
 
 Requires ARGUS ... etc
-
 
 ### Installing
 
@@ -24,7 +22,6 @@ A setup script is provided in order to check for and install any prerequisites r
 ```
 ./setup
 ```
-
 
 ## Running the Botnet Detection Engine
 
