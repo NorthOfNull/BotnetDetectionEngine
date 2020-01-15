@@ -16,7 +16,7 @@ Requires ARGUS ... etc
 Clone this repository:
 
 ```
-> git clone github.com/NorthOfNull/BotnetDetectionEngine
+git clone github.com/NorthOfNull/BotnetDetectionEngine
 ```
 
 A setup script is provided in order to check for and install any prerequisites required for program exectuion:
