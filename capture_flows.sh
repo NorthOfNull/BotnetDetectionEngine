@@ -2,6 +2,8 @@
 
 file="output.binetflow"
 
+# npm start &
+
 # Sniff packets using tcpdump, piping output to argus
 # Convert to argus data format
 # Pass into ra client in order to convert argus data into netflow data

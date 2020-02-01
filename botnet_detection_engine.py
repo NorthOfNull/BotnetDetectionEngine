@@ -2,24 +2,59 @@
 
 import sys
 import time
+import asyncio
+import websocket
 
-k = 0
+def get_stdin_netflow():
+    netflow = ''
+    
+    while not netflow.endswith('\n'):
+        netflow += sys.stdin.read(1)
 
-try:
-    buff = ''
+    return netflow[:-1]
 
+
+if __name__ == "__main__":
+    socket = "ws://localhost:5566"
+
+    # Create websocket connection
+    try:
+        ws = websocket.create_connection(socket)
+    except:
+        ws = False
+        print("[ Websocket ] Connection Initalisation Failed ")
+
+
+    # Loop to collect stdin input and then send it through the websocket
     while True:
-        buff += sys.stdin.read(1)
+        netflow = get_stdin_netflow()
 
-        if buff.endswith('\n'):
-            print buff[:-1]
+        # Send netflow data through the websocket connection
+        # If the connection fails, attempt to re-establish
+        try:
+            ws.send(netflow)
+        except:
+            # Attempt to re-establish the Websocket connection to the server
+            ws = ''
+            attempts = 5
+            print("[ Websocket ] Connection failed.")
 
-            buff = ''
-            k = k + 1
+            for attempt in range(0, attempts):
+                print("[ Websocket ] Attempting to re-establish... ")
+            
+                try:
+                    ws = websocket.create_connection(socket)
 
-except KeyboardInterrupt:
-   sys.stdout.flush()
+                    print("[ Websocket ] Connection re-established!")
+                except:
+                    print("[ Websocket ] Attempt ", attempt, "failed...")
+                    time.sleep(1)
 
-   pass
+                if ws:
+                    break
+                elif attempt == (attempts - 1):
+                    raise Exception("[ Websocket ] EXCEPTION - Could not re-esablish a connection")
 
-print k
+                    # TODO - Kill tcpdump, argus and ra processes from here!!!!
+
+        print(netflow)
