@@ -70,7 +70,7 @@ wss.on('connection', function connection(ws) {
     });
 
 
-    // Send data received from client to renderer process
+    // Send data from data_controller from client to renderer process
     // Send to the ipcRenderer's 'fromMain' event
     ws.on('message', function incoming(message) {
         data = {
@@ -81,4 +81,9 @@ wss.on('connection', function connection(ws) {
 
         console.log('received: %s', message);
     });
+});
+
+// Listener for send functions from renderer process
+ipcRenderer.on('toMain', function(event, fromPage) {
+    if(fromPage == 'Dashboard')
 });

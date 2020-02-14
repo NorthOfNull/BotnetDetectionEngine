@@ -4,6 +4,15 @@
 // `nodeIntegration` is turned off. Use `preload.js` to
 // selectively enable features needed in the rendering
 // process.
+
+
+// Inital page rendering 
+// TODO
+// SEND REQUEST TO MAIN.JS IPCRENDERER LISTENER
+// AND GET INITAL DATA TO DISPLAY AT PAGE LOAD
+
+
+// On data_controller object updates
 window.api.receive("fromMain", (data) => {
     console.log(data);
 
