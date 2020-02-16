@@ -4,7 +4,9 @@ import sys
 import time
 import asyncio
 
-from detection_engine_modules.Websocket_Controller import Websocket_Controller
+from detection_engine_modules.Sniffer import *
+from detection_engine_modules.Websocket_Controller import *
+
 
 # TODO
 # EXPORT THIS TO STDIN CONTROLLER MODULE
@@ -18,8 +20,14 @@ def get_stdin_netflow():
 
 
 if __name__ == "__main__":
-    socket_addr = "ws://localhost:5566"
+    # Input pipeline initialisation
+    # Sniffs raw data from a SPAN'd port, performs netflow feature extraction 
+    sniffer = Sniffer()
 
+
+    # Websocket initialisation
+    # Faciliates data transfer through a localhost socket to the backend electron nodejs server
+    socket_addr = "ws://localhost:5566"
 
     # Create websocket connection to the nodejs websocket server
     try:
@@ -32,7 +40,7 @@ if __name__ == "__main__":
         # EXIT PROGRAM AND CHILDREN
 
 
-    # Loop to collect stdin input and then send it through the websocket
+    # Loop to collect stdin input and then send it through the websocket; on full flow received
     while True:
         netflow = get_stdin_netflow()
 
@@ -54,6 +62,8 @@ if __name__ == "__main__":
             max_attempts = 5
             print("[ Websocket ] Connection failed.")
 
+            # TODO
+            # EXPORT THIS WEBSOCKET RECONNNECTION STUFF TO THE Websocket_Controller.py MODULE
 
 
             for attempt in range(0, max_attempts):

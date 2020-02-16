@@ -75,7 +75,7 @@ wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
         data = {
             'dcTotalFlows':dc.total_flow_count
-        };
+        }
 
         mainWindow.webContents.send("fromMain", data);
 
@@ -85,5 +85,7 @@ wss.on('connection', function connection(ws) {
 
 // Listener for send functions from renderer process
 ipcRenderer.on('toMain', function(event, fromPage) {
-    if(fromPage == 'Dashboard')
+    if(fromPage == 'Dashboard') {
+        
+    }
 });
