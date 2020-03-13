@@ -14,5 +14,8 @@ class Websocket_Controller:
 
 		try:
 			self.socket = websocket.create_connection(self.socket_addr)
+
+			print("[ Websocket_Controller ] Connected to Electron!")
 		except:
 			raise Exception("[ Websocket_Controller ] EXCEPTION - Could not esablish a connection")
+

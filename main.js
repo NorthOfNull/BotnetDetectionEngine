@@ -1,19 +1,21 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, ipcMain} = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
+
 const path = require('path');
 const WebSocket = require('ws');
 const Data_Controller = require('./js/Data_Controller');
+
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
-
 function createWindow () {
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 1000,
+        height: 800,
+        darkTheme: true,
         webPreferences: {
             contextIsolation: true, 
             preload: path.join(__dirname, 'js/preload.js')
@@ -24,7 +26,7 @@ function createWindow () {
     mainWindow.loadFile('html/index.html');
 
     // Open the DevTools.
-    // mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
@@ -64,28 +66,43 @@ const wss = new WebSocket.Server({ port: 5566 });
 wss.on('connection', function connection(ws) {
     console.log("WS client connection established!");
 
-    // Send data received on websocket from detection engine to the Data_Controller
-    ws.on('message', function incoming(message) {
-        dc.add_flow(message);
-    });
-
 
     // Send data from data_controller from client to renderer process
     // Send to the ipcRenderer's 'fromMain' event
     ws.on('message', function incoming(message) {
-        data = {
-            'dcTotalFlows':dc.total_flow_count
-        }
+        // Add the flow to the Data_Controller instance
+        dc.add_flow(message);
 
-        mainWindow.webContents.send("fromMain", data);
+        let data = {
+            'dcTotalFlows':dc.total_flow_count,
+            'dcBotFlows':dc.bot_flow_count,
+            'dcReceivedFlows':message
+        };
+
+        // Send updated data to the page
+        send_data(data);
 
         console.log('received: %s', message);
     });
 });
 
-// Listener for send functions from renderer process
-ipcRenderer.on('toMain', function(event, fromPage) {
-    if(fromPage == 'Dashboard') {
-        
+
+// Listener for data requests from the renderer process
+ipcMain.on('toMain', function(event, request) {
+    if(request == 'init_data') {
+        let data = dc.get_data();
+
+        send_data(data);
     }
 });
+
+// Sends data to the renderer process
+function send_data(data=false) {
+
+    if(data == false) {
+        console.log("Error - No Data to send from <send_data>");
+    }
+
+    // Send data to the renderer process
+    mainWindow.webContents.send("fromMain", data);
+}

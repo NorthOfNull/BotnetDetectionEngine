@@ -4,8 +4,8 @@ import sys
 import time
 import asyncio
 
-from detection_engine_modules.Sniffer import *
-from detection_engine_modules.Websocket_Controller import *
+from detection_engine_modules.Sniffer import Sniffer
+from detection_engine_modules.Websocket_Controller import Websocket_Controller
 
 
 # TODO
@@ -21,8 +21,10 @@ def get_stdin_netflow():
 
 if __name__ == "__main__":
     # Input pipeline initialisation
-    # Sniffs raw data from a SPAN'd port, performs netflow feature extraction 
+    # Sniffs raw data from a SPAN'd port, performs netflow feature extraction
+    # TCPDUMP (pcap) | ARGUS (argus) | RA CLIENT (Formatted Neflow CSV Export)
     sniffer = Sniffer()
+    sniffer.start()
 
 
     # Websocket initialisation
@@ -42,9 +44,12 @@ if __name__ == "__main__":
 
     # Loop to collect stdin input and then send it through the websocket; on full flow received
     while True:
-        netflow = get_stdin_netflow()
+        #flow = get_stdin_netflow()
+
+        flow = sniffer.get_flows()
 
 
+        print(flow)
 
         # TODO
         # NETFLOW DATA GETS PREDICTED BY THE MODEL AND LABELLED HERE
@@ -55,33 +60,39 @@ if __name__ == "__main__":
         # Send netflow data through the websocket connection
         # If the connection fails, attempt to re-establish
         try:
-            ws_ctrl.socket.send(netflow)
+            ws_ctrl.socket.send(flow)
+
+
+            # print("SENT")
         except:
             # Attempt to re-establish the Websocket connection to the server
             ws = ''
             max_attempts = 5
-            print("[ Websocket ] Connection failed.")
+            print("[ Websocket_Controller ] Connection failed.")
 
             # TODO
             # EXPORT THIS WEBSOCKET RECONNNECTION STUFF TO THE Websocket_Controller.py MODULE
 
 
             for attempt in range(0, max_attempts):
-                print("[ Websocket ] Attempting to re-establish... ")
+                print("[ Websocket_Controller ] Attempting to re-establish... ")
             
                 try:
-                    ws_ctrl.connect()
+                    ws_ctrl.connect(socket_addr)
 
-                    print("[ Websocket ] Connection re-established!")
-                except:
-                    print("[ Websocket ] Attempt ", attempt, "failed...")
-                    time.sleep(1)
-
-                if ws:
+                    print("[ Websocket_Controller ] Connection re-established!")
                     break
-                elif attempt == (max_attempts - 1):
-                    raise Exception("[ Websocket ] EXCEPTION - Could not re-esablish a connection")
+                except:
+                    print("[ Websocket_Controller ] Attempt ", attempt, "failed...")
+                    time.sleep(2)
 
-                    # TODO - Kill tcpdump, argus and ra processes from here!!!!
+                #if ws:
+                #    break
+                #elif attempt == (max_attempts - 1):
+                #    raise Exception("[ Websocket_Controller ] EXCEPTION - Could not re-esablish a connection")
+                #
+                #    # TODO - Kill tcpdump, argus and ra processes from here!!!!
+                #
+                #    # TODO - JUST KILL PARENT PROCESS???????
 
-        print(netflow)
+        #print(netflow)
