@@ -1,8 +1,22 @@
 from subprocess import Popen, PIPE
 
+
+'''
+
+'''
 class Sniffer:
+	'''
+
+	'''
 	def __init__(self):
 		self.running = False
+
+
+	'''
+
+	'''
+	def __del__(self):
+		print("Deleting Sniffer Object.")
 
 
 	'''

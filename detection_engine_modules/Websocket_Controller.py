@@ -1,14 +1,20 @@
 import websocket
 
+'''
 
-###
+'''
 class Websocket_Controller:
+	'''
+
+	'''
 	def __init__(self):
 		self.socket_addr = False
 		self.socket = False
 
 
-	###
+	'''
+	
+	'''
 	def connect(self, addr):
 		self.socket_addr = addr
 
