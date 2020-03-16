@@ -82,6 +82,9 @@ wss.on('connection', function connection(ws) {
         // Send updated data to the page
         send_data(data);
 
+
+        // TODO
+        // DEBUG ONLY - DELETE ME
         console.log('received: %s', message);
     });
 });

@@ -29,11 +29,11 @@ Parses the command line arguments
 @returns A populated namespace object, containing the parsed arguments from sys.argv
 '''
 def get_cmd_line_args():
-    parser = argparse.ArgumentParser(usage="%(prog)s [-n] [--log FILE] [--help]",
+    parser = argparse.ArgumentParser(usage="./run.sh [-h --help] [-n] [--log] ",
                                      description="The Botnet Detection Engine. GUI starts by default. Logging is disabled by deafult (to stdout only).")
 
     parser.add_argument("-n", action="store_true", help="Disables GUI.")
-    parser.add_argument("--log", action="store_true", help="Log output to FILE.")
+    parser.add_argument("--log", action="store_true", help="Log output to \"/var/log/botnet_detection_engine/detection_output.log\".")
 
     args = parser.parse_args()
 
@@ -121,8 +121,10 @@ if __name__ == "__main__":
     # TODO
     # TODO
     # TODO
+    #
     # Model Object creation
     # Model object de-serialisation of saved ML model files
+    # Detector object init (which loads models)
 
 
     # Input pipeline initialisation
@@ -145,7 +147,7 @@ if __name__ == "__main__":
         # TODO
         # NETFLOW DATA GETS PREDICTED BY THE MODEL AND LABELLED HERE
         # BEFORE BEING SENT
-        # flow = model.predict(flow)
+        # flow = detector.predict(flow)
 
 
         # Output the labelled flow to stdout
@@ -172,6 +174,10 @@ if __name__ == "__main__":
             try:
                 ws_ctrl.socket.send(flow)
 
+                # TODO
+                # Export the above send function to the websocket class
+                # ws_ctrl.send(flow)
+
 
                 # LOG TO FILE IF LOGGING IS TRUE (ENABLED)
                 # LOG TO FILE IF LOGGING IS TRUE (ENABLED)
@@ -180,18 +186,22 @@ if __name__ == "__main__":
 
                 # print("SENT")
             except:
+                # TODO 
+                # IMPLEMENT attempt_reconnect into Websocket_Controller
+                # ws_ctrl.attempt_reconnect()
+
+
                 # Attempt to re-establish the Websocket connection to the server
                 ws = ''
                 max_attempts = 5
                 print("[ Websocket_Controller ] Connection failed.")
+                print("[ Websocket_Controller ] Attempting to re-establish... ")
 
                 # TODO
                 # EXPORT THIS WEBSOCKET RECONNNECTION STUFF TO THE Websocket_Controller.py MODULE
 
 
                 for attempt in range(0, max_attempts):
-                    print("[ Websocket_Controller ] Attempting to re-establish... ")
-                
                     try:
                         ws_ctrl.connect(socket_addr)
 
@@ -201,10 +211,10 @@ if __name__ == "__main__":
                         print("[ Websocket_Controller ] Attempt ", attempt, "failed...")
                         time.sleep(2)
 
-                    #if ws:
-                    #    break
-                    #elif attempt == (max_attempts - 1):
-                    #    raise Exception("[ Websocket_Controller ] EXCEPTION - Could not re-esablish a connection")
+                    if attempt == (max_attempts - 1):
+                        print("[ Websocket_Controller ] EXCEPTION - Could not re-esablish a connection.")
+                        print("--- Botnet Detection Engine Terminating ---")
+                        sys.exit()
                     #
                     #    # TODO - Kill tcpdump, argus and ra processes from here!!!!
                     #

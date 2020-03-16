@@ -16,7 +16,7 @@ class Sniffer:
 
 	'''
 	def __del__(self):
-		print("Deleting Sniffer Object.")
+		print("Deleting Sniffer.")
 
 
 	'''

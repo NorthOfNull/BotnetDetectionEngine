@@ -8,7 +8,7 @@ class Logger:
 
 	'''
 	def __init__(self):
-		self.log_file = "detection_output.log"
+		self.log_file = "/var/log/botnet_detection_engine/detection_output.log"
 		self.file_handle = None
 
 		open_file()

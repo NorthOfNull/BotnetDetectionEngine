@@ -1,19 +1,19 @@
 {
-  "name": "electron-quick-start",
+  "name": "Botnet_Detection_Engine",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "A Bio-Optimised Machine Learning Botnet Detection Engine intended for Network Intrusion Detection use, ideally positioned at the Network Edge",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/NorthOfNull/BotnetDetectionEngine",
   "keywords": [],
   "author": "Kyle Fryer",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^7.1.11"
+    "electron": "^7.1.14"
   },
   "dependencies": {
-    "ws": "^7.2.1"
+    "ws": "^7.2.3"
   }
 }
