@@ -1,5 +1,5 @@
 # BotnetDetectionEngine
-A Bio-Optimised Machine Learning, Flow-based Botnet Detection Engine; as a Proof-of-Concept application of a Bio-Optimised Model
+A Flow-based Botnet Detection Engine; as a Proof-of-Concept application of a Bio-Optimised Machine Learning Models.
 
 ## Getting Started
 
