@@ -7,11 +7,15 @@ import argparse
 
 from detection_engine_modules.Logger import Logger
 from detection_engine_modules.Sniffer import Sniffer
+from detection_engine_modules.Detector import Detector
 from detection_engine_modules.Websocket_Controller import Websocket_Controller
 
 
 #### TODO
 #### EXPORT THIS TO STDIN CONTROLLER MODULE
+######
+######  OR USE FOR STDIN INPUT FOR TESTING? 
+######
 ###def get_stdin_netflow():
 ###    netflow = ''
 ###    
@@ -49,17 +53,19 @@ def update_global_vars(args):
     # GUI argument check
     if(args.n):
         # Disable GUI
-        print("[Cmd_Line_Args] Disabling GUI!")
+        print("[ Cmd_Line_Args ] Disabling GUI!")
         
         global GUI
         GUI = False
 
     if(args.log):
         # Enable logging
-        print("[Cmd_Line_Args] Enabling Logging!")
+        print("[ Cmd_Line_Args ] Enabling Logging!")
 
         global Logging
         Logging = True
+
+    return 0
 
 
 
@@ -105,17 +111,10 @@ if __name__ == "__main__":
 
 
 
-    # TODO
-    # TODO
-    # TODO
-    #
-    # IF LOGGING
-    # WE CREATE THE LOGGER INSTANCE HERE
-    # WHICH IS AN OBJECT TO HANDLE LOGGING OPERATIONS
-    #
-    # if(Logging):
-    #   # Initialise Logging instance to handle file logging operations
-    #   logger = Logger()
+    # If logging is enabled
+    if(Logging):
+        # Initialise Logger instance to handle file logging operations
+        logger = Logger()
 
 
     # TODO
@@ -125,11 +124,12 @@ if __name__ == "__main__":
     # Model Object creation
     # Model object de-serialisation of saved ML model files
     # Detector object init (which loads models)
+    detector = Detector()
 
 
-    # Input pipeline initialisation
-    # Sniffs raw data from a SPAN'd port, performs netflow feature extraction
-    # TCPDUMP (pcap) | ARGUS (argus) | RA CLIENT (Formatted Neflow CSV Export)
+    # Sniffs raw data from a SPAN'd port, performs netflow feature extraction.
+    # Mimics bash shell behaviour of:
+    # $ TCPDUMP (interface) | ARGUS | RA CLIENT (CSV Formatted Network Flow Exporter).
     sniffer = Sniffer()
     sniffer.start()
 
@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
         # Gets the flow data from the end of the sniffer's program pipeline
         # (the stdout of the last program)
-        flow = sniffer.get_flows()
+        flow = sniffer.get_flow()
 
 
         # TODO
@@ -151,20 +151,19 @@ if __name__ == "__main__":
 
 
         # Output the labelled flow to stdout
-        print(flow)
+        print(flow.decode("utf-8"))
 
 
-
-
+        # TODO 
+        # TODO 
+        # LOGGER - instead of logging the flow, we want to log the ALERT data instead (once alert generation functionality is added into the detector)
+        # LOGGER - instead of logging the flow, we want to log the ALERT data instead (once alert generation functionality is added into the detector)
+        # LOGGER - instead of logging the flow, we want to log the ALERT data instead (once alert generation functionality is added into the detector)
 
         # If Logging is enabled
         if(Logging):
             # Log the output to the file
-            print("LOGGING LABELLED FLOW TO FILE")
-
-            # Use Logger object to write flow to file
-            # e.g.
-            # logger.write(flow)
+            logger.write_to_file(flow)
 
 
         # If GUI is running
@@ -179,13 +178,10 @@ if __name__ == "__main__":
                 # ws_ctrl.send(flow)
 
 
-                # LOG TO FILE IF LOGGING IS TRUE (ENABLED)
-                # LOG TO FILE IF LOGGING IS TRUE (ENABLED)
-                # LOG TO FILE IF LOGGING IS TRUE (ENABLED)
-
-
                 # print("SENT")
             except:
+                # TODO
+                # TODO 
                 # TODO 
                 # IMPLEMENT attempt_reconnect into Websocket_Controller
                 # ws_ctrl.attempt_reconnect()
@@ -214,11 +210,9 @@ if __name__ == "__main__":
                     if attempt == (max_attempts - 1):
                         print("[ Websocket_Controller ] EXCEPTION - Could not re-esablish a connection.")
                         print("--- Botnet Detection Engine Terminating ---")
+
+                        # Kills the parent process (and thus, the sniffer's subprocesses, as defined in the sniffer destructor)
                         sys.exit()
-                    #
-                    #    # TODO - Kill tcpdump, argus and ra processes from here!!!!
-                    #
-                    #    # TODO - JUST KILL PARENT PROCESS???????
 
         #print(netflow)
 ###

@@ -85,7 +85,7 @@ wss.on('connection', function connection(ws) {
 
         // TODO
         // DEBUG ONLY - DELETE ME
-        console.log('received: %s', message);
+        //console.log('received: %s', message);
     });
 });
 
@@ -98,6 +98,8 @@ ipcMain.on('toMain', function(event, request) {
         send_data(data);
     }
 });
+
+
 
 // Sends data to the renderer process
 function send_data(data=false) {

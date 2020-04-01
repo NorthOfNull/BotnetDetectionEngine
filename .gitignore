@@ -4,3 +4,4 @@ botnet_detection_engine.py.bak
 /gui
 package-lock.json
 test.py
+alerts.log
