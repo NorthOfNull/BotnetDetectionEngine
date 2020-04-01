@@ -41,8 +41,7 @@ The Botnet Detection Engine. GUI starts by default. Logging is disabled by
 deafult (to stdout only).
 
 optional arguments:
-	
-   -h, --help  show this help message and exit
+  -h, --help  show this help message and exit
   
   -n          Disables GUI.
   --log       Log alert output to "alerts.log".
