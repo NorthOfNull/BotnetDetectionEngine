@@ -45,6 +45,6 @@ optional arguments:
    -h, --help  show this help message and exit
   
   -n          Disables GUI.
-  --log       Log output to
-              "/var/log/botnet_detection_engine/detection_output.log".
+  --log       Log alert output to
+              "alerts.log".
 ```
