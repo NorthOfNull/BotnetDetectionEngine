@@ -1,4 +1,4 @@
-# BotnetDetectionEngine
+# Botnet Detection Engine
 A Flow-based Botnet Detection Engine; as a Proof-of-Concept application of a Bio-Optimised Machine Learning Models.
 
 ## Getting Started
