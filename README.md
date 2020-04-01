@@ -45,6 +45,5 @@ optional arguments:
    -h, --help  show this help message and exit
   
   -n          Disables GUI.
-  --log       Log alert output to
-              "alerts.log".
+  --log       Log alert output to "alerts.log".
 ```
