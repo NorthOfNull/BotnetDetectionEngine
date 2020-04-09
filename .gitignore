@@ -5,3 +5,5 @@ botnet_detection_engine.py.bak
 package-lock.json
 test.py
 alerts.log
+flows.binetflow
+/Models

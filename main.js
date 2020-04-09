@@ -71,7 +71,7 @@ wss.on('connection', function connection(ws) {
     // Send to the ipcRenderer's 'fromMain' event
     ws.on('message', function incoming(message) {
         // Add the flow to the Data_Controller instance
-        dc.add_flow(message);
+        dc.add_data(message);
 
         let data = {
             'dcTotalFlows':dc.total_flow_count,

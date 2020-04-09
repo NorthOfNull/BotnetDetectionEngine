@@ -18,11 +18,11 @@ class Sniffer:
 
 	'''
 	def __del__(self):
-		print("Deleting Sniffer object and the subprocesses.")
-
 		self.tcpdump.kill()
 		self.argus.kill()
 		self.ra.kill()
+
+		print("Deleting Sniffer object and the subprocesses.")
 
 
 	'''

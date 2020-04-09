@@ -15,7 +15,13 @@
 
 
 import os
+import json
+
 from detection_engine_modules.Model import Model
+from detection_engine_modules.Logger import Logger
+from detection_engine_modules.Sniffer import Sniffer
+from detection_engine_modules.Websocket_Controller import Websocket_Controller
+
 
 '''
 
@@ -24,13 +30,40 @@ class Detector:
 	'''
 
 	'''
-	def __init__(self):
-		self.model_directory = 'models/'
+	def __init__(self, GUI=True, Logging=True, Debug=False):
+		self.GUI = GUI
+		self.Logging = Logging
+		self.Debug = Debug
+
 		self.models = []
-		self.failed_loading_models = False
+		self.model_directory = 'Models'
 
-		self.load_models()
+		if(self.Debug):
+			print("[ Detector ] Debugging enabled.")
 
+		if(self.GUI == True):
+			# Websocket_Controller instance
+			# Faciliates data transfer through a localhost socket to the backend electron nodejs server
+			self.socket_addr = "ws://localhost:5566"
+
+			# Create websocket connection to the nodejs websocket server
+			self.ws_ctrl = Websocket_Controller()
+
+			# And attempt to connect to the websocker server
+			self.ws_ctrl.connect(self.socket_addr)
+
+		if(self.Logging == True):
+			# Flow and Alert file logging
+			# Initialise Logger instance to handle alert and flow file logging operations
+			self.logger = Logger()
+
+		# De-serialise model objects into the model array
+		self.models = self.load_models()
+
+		# Sniffs raw data from a SPAN'd port, performs netflow feature extraction.
+		# Mimics bash shell behaviour of:
+		# $ TCPDUMP (interface) | ARGUS | RA CLIENT (CSV Formatted Network Flow Exporter).
+		self.sniffer = Sniffer()
 
 	'''
 
@@ -38,27 +71,78 @@ class Detector:
 	def __del__(self):
 		print("Deleting Detector object and the loaded models.")
 
-		# TODO 
-		# TODO
-		# TODO
-		# DELETE LOADED MODELS
-		# del self.models
-
-
 	'''
 	De-serialisation of trained Machine Learning models that are contained in the 'Models' directory.
 	Loaded objects get stored in the 'self.models' array, along with their descriptive data.
 
 	'''
 	def load_models(self):
+		models = []
+		model_data = None
+
+		if(self.Debug):
+			print("[ Detector ] Loading Models...")
+
 		# Handle nothing being present in directory
 		# Handle directory not being present
-		if(os.path.exists(self.model_directory)):
-			self.failed_loading_models = True
-			print("FAILED LOADING MODELS")
+		assert(os.path.exists(self.model_directory))
+
+		# Get model metadata from the json file
+		data_file = self.model_directory + '/model_data.json'
+		model_json_metadata = self.get_model_data(data_file)
 
 
-		return 0
+		# Load models that have file names present within the model_json_metadata file (filenames are stored as the json keys)
+		for model_file_name in model_json_metadata.keys():
+			# Instantiate model object, with the full relative model file path being passed as an argument
+			model_data = model_json_metadata[model_file_name]
+
+			instance_of_model = Model(self.model_directory, model_file_name, model_data)
+
+			models.append(instance_of_model)
+
+
+		if not models:
+			print("[ Detector ] Model Loading Failed")
+
+		return models
+
+	'''
+	Main running loop for the detector.
+	Gets flows from the network flow sniffer, predicts the behaviour via the models and outputs the data
+	'''
+	def run(self):
+		# Start sniffer
+		self.sniffer.start()
+
+		# Main loop
+		while(True):
+			# Get flows from the sniffer
+			flow = self.sniffer.get_flow()
+
+
+			# TODO
+			# NETFLOW DATA GETS PREDICTED BY THE MODEL AND LABELLED HERE
+			# BEFORE BEING SENT
+			# labelled_flow, alert_data = detector.predict(flow)
+
+
+			# Output the labelled flow to stdout
+			print(flow.decode("utf-8"))
+
+			# If GUI is enabled
+			if(self.GUI == True):
+				# Send the flow and any alert data to the GUI instance, via the websocket
+				self.ws_ctrl.send(labelled_flow, alert_data)
+			
+
+
+
+			# If Logging is enabled
+			if(self.Logging == True):
+				# Log the output to the file
+				self.logger.write_flow_to_file(labelled_flow)
+				self.logger.write_alert_to_file(alert_data)
 
 
 	'''
@@ -66,7 +150,7 @@ class Detector:
 	If the flow is predicted as botnet, we return the data about the models that made the prediction.
 
 	@returns The labelled network flow (csv format)
-	@returns The model data, in the form of an alert, from positive models.
+	@returns The json model data, in the form of an alert, from positive models.
 	'''
 	def predict(self, flow):
 		# Predict the label of the flow using each loaded model
@@ -74,15 +158,21 @@ class Detector:
 		predicted_model_data = []
 
 
+		# Flow feature exclusion
+		# Required to only pass valid the model feature vector (the features that the models were trained on)
+		# to the models, ready for prediction
+		flow_for_model = self.flow_feature_exclusion()
+
 		# for model in self.models:
-		#	prediction = model.predict(flow)
-		#	
-		#   labelled_flow = flow + prediction
+		#	prediction = model.predict(flow_for_model)
 		# 
 		#   if(prediction == 'Botnet'):
 		#		predicted_model_data.append(model.data) 
 		#	
-
+		# if predicted_model_data:
+		#	if(self.Debug):
+		#		print("DETECTOR BOTNET PREDICTION:")
+		#		print(predicted_model_data)
 
 
 		# If a positive botnet prediction is made from one or more 
@@ -94,18 +184,39 @@ class Detector:
 		# get 'bot_alert_data' from the model object's data that is loaded from the json file that stores model characteristic data
 		# we will use this data in the logging process within the Logger module, generating the alerts
 
-		return labelled_flow, alert
-
+		return labelled_flow, alert_data
 
 	'''
 	Generates an alert data structure from the specific data of each positive prediction model.
 
 	@returns The generated alert data
 	'''
-	def generate_alert(self, labelled_flow, predicted_model_data):
+	def generate_alert(self, predicted_model_data):
 		print("!!!!!!!GENERATING ALERT!!!!!!!!")		
 
 		# get 'predicted_model_data' from the model object's data that is loaded from the json file that stores model characteristic data
 		# we will use this data in the logging process within the Logger module, generating the alerts
 
 		return alert
+
+	'''
+
+	'''
+	def get_model_data(self, data_file):
+		with open(data_file) as data_file:
+			# Parse json data from the file
+			model_data = json.load(data_file)
+
+		return model_data
+
+	'''
+	
+	'''
+	def flow_feature_exclusion(self, flow):
+
+		# TODO
+
+		valid_flow = None
+
+
+		return valid_flow

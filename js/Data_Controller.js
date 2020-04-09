@@ -4,6 +4,7 @@ class Data_Controller {
 	constructor() {
 		// JSON Object to hold received flows
 		this.received_flows = [];
+		this.received_alerts = [];
 
 		// Integer counts of processed flows
 		this.total_flow_count = 0;
@@ -11,8 +12,8 @@ class Data_Controller {
 	}
 
 
-	// Add flow to the data_controller object's json object for storage
-	add_flow(flow) {
+	// Add labelled_flow and alert _ata to the data_controller object's json object for storage
+	add_data(flow) {
 
 		// TODO
 		// ADD DATA CHECKING AND PARSING TO JSON?
