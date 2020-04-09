@@ -35,14 +35,12 @@ A simple bash script is provided in order to run the flow collection and process
 
 ### Usage
 ```
-usage: ./run.sh [-h --help] [-n] [--log] 
+usage: ./run.sh [-h --help] [--gui] [--log] 
 
-The Botnet Detection Engine. GUI starts by default. Logging is disabled by
-deafult (to stdout only).
+The Botnet Detection Engine. GUI and logging is enabled by default.
 
 optional arguments:
   -h, --help  show this help message and exit
-  
-  -n          Disables GUI.
-  --log       Log alert output to "alerts.log".
+  --gui       Disables GUI.
+  --log       Disables alert and flow logging to file.
 ```

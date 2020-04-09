@@ -29,11 +29,11 @@ Parses the command line arguments
 @returns A populated namespace object, containing the parsed arguments from sys.argv
 '''
 def get_cmd_line_args():
-	parser = argparse.ArgumentParser(usage="./run.sh [-h --help] [--no-gui] [--no-log] ",
-									 description="The Botnet Detection Engine. GUI starts by default. Logging is disabled by deafult (to stdout only).")
+	parser = argparse.ArgumentParser(usage="./run.sh [-h --help] [--gui] [--log] ",
+									 description="The Botnet Detection Engine. GUI and logging is enabled by default.")
 
 	parser.add_argument("--gui", action="store_true", help="Disables GUI.")
-	parser.add_argument("--log", action="store_true", help="Disables alert and flow loggint to file.")
+	parser.add_argument("--log", action="store_true", help="Disables alert and flow logging to file.")
 
 	args = parser.parse_args()
 
