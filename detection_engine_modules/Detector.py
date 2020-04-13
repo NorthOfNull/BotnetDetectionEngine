@@ -16,6 +16,7 @@
 
 import os
 import json
+import pandas as pd
 
 from detection_engine_modules.Model import Model
 from detection_engine_modules.Logger import Logger
@@ -30,16 +31,32 @@ class Detector:
 	'''
 
 	'''
-	def __init__(self, GUI=True, Logging=True, Debug=False):
-		self.GUI = GUI
-		self.Logging = Logging
-		self.Debug = Debug
+	def __init__(self, args):
+		self.GUI = args.gui
+		self.Logging = args.log
+		self.Debug = args.debug
+		self.Read = args.read
+
+		self.dataset_feature_columns = ['SrcAddr', 'DstAddr', 'Proto', 'Sport', 'Dport', 'State',
+			'sTos', 'dTos', 'SrcWin', 'DstWin', 'sHops', 'dHops', 'StartTime', 'LastTime', 'sTtl',
+			'dTtl', 'TcpRtt', 'SynAck', 'AckDat', 'SrcPkts', 'DstPkts', 'SrcBytes', 'DstBytes',
+			'SAppBytes', 'DAppBytes', 'Dur', 'TotPkts', 'TotBytes', 'TotAppByte', 'Rate', 'SrcRate',
+			'DstRate']
 
 		self.models = []
 		self.model_directory = 'Models'
 
+
 		if(self.Debug):
 			print("[ Detector ] Debugging enabled.")
+
+		# De-serialise model objects into the model array
+		self.models = self.load_models()
+
+		# Sniffs raw data from a SPAN'd port, performs netflow feature extraction.
+		# Mimics bash shell behaviour of:
+		# $ TCPDUMP (interface) | ARGUS | RA CLIENT (CSV Formatted Network Flow Exporter).
+		self.sniffer = Sniffer(self.Read)
 
 		if(self.GUI == True):
 			# Websocket_Client instance
@@ -57,19 +74,12 @@ class Detector:
 			# Initialise Logger instance to handle alert and flow file logging operations
 			self.logger = Logger()
 
-		# De-serialise model objects into the model array
-		self.models = self.load_models()
-
-		# Sniffs raw data from a SPAN'd port, performs netflow feature extraction.
-		# Mimics bash shell behaviour of:
-		# $ TCPDUMP (interface) | ARGUS | RA CLIENT (CSV Formatted Network Flow Exporter).
-		self.sniffer = Sniffer()
-
 	'''
 
 	'''
 	def __del__(self):
-		print("Deleting Detector object and the loaded models.")
+		if(self.Debug == True):
+			print("Deleting Detector object and the loaded models.")
 
 	'''
 	De-serialisation of trained Machine Learning models that are contained in the 'Models' directory.
@@ -99,11 +109,19 @@ class Detector:
 
 			instance_of_model = Model(self.model_directory, model_file_name, model_data)
 
-			models.append(instance_of_model)
+			if(instance_of_model.loading_status == True):
+				# If the model is succesfully loaded
+				# Add the model object to the Detector
+				models.append(instance_of_model)
+			else:
+				# Object cleanup
+				del instance_of_model
 
+		if(self.Debug):
+			print("[ Detector ] Loaded", len(models), "/", len(model_json_metadata.keys()), "models.")
 
-		if not models:
-			print("[ Detector ] Model Loading Failed")
+		if(len(models) == 0):
+			raise Exception("[ Detector ] Model Loading Failed")
 
 		return models
 
@@ -117,54 +135,101 @@ class Detector:
 
 		# Main loop
 		while(True):
-			# Get flows from the sniffer
-			flow = self.sniffer.get_flow()
+			flow_string = None
+			flow = None
+			labelled_flow = None
+			alert = None
 
+			# Get raw flows from the sniffer
+			flow_string = self.sniffer.get_flow()
 
-			# TODO
-			# NETFLOW DATA GETS PREDICTED BY THE MODEL AND LABELLED HERE
-			# BEFORE BEING SENT
-			# labelled_flow, alert_data = detector.predict(flow)
+			# Process the flow_string into a DataFrame with the required feature vectors being maintained
+			# So that the flow data is ready to make predictions
+			flow = self.process_flow(flow_string)
 
+			flow_string = flow_string.decode('utf-8')
+
+			# If there is a valid flow (i.e. self.process_flow successfully returns a processed_flow)
+			if flow is not False:
+				# Predict the flow's class, using the detector's models
+
+				# TODO
+				# NETFLOW DATA GETS PREDICTED BY THE MODEL AND LABELLED HERE
+				# BEFORE BEING SENT
+				prediction, alert = self.predict(flow)
+
+				# Make labelled_flow string
+				labelled_flow = flow_string + str(prediction)
+			else:
+				# Not flow data, so we just output the 'ra' clients flow feature headers
+				labelled_flow = flow_string
 
 			# Output the labelled flow to stdout
-			print(flow.decode("utf-8"))
+			print(labelled_flow)
 
 			# If GUI is enabled
 			if(self.GUI == True):
 				# Send the flow and any alert data to the GUI instance, via the websocket
-				self.ws_ctrl.send(labelled_flow, alert_data)
+				self.ws_ctrl.send(labelled_flow, alert)
 			
-
 
 
 			# If Logging is enabled
 			if(self.Logging == True):
 				# Log the output to the file
 				self.logger.write_flow_to_file(labelled_flow)
-				self.logger.write_alert_to_file(alert_data)
+				self.logger.write_alert_to_file(alert)
 
+	'''
+	Processes flow_string into the valid DataFrame, with the column headers included.
+
+	@returns The flow DataFrame
+	'''
+	def process_flow(self, flow_string):
+		# Decode string
+		flow_string = flow_string.decode('utf-8')
+
+		if 'Label' in flow_string:
+			# Not a valid flow ('ra' client flow feature headers)
+			processed_flow = False
+		else:
+			# Split flow_string into array
+			flow = flow_string.split(',')
+
+			# Remove the last empty 'label' data field from the flow 
+			flow.pop()
+
+			# Fill in empty fields
+			for i, data in enumerate(flow):
+				if data is None:
+					flow[i] = 0
+					print(flow[i])
+
+			# Process into DataFrame, with the relative dataset feature column headers
+			processed_flow = pd.DataFrame([flow], columns=self.dataset_feature_columns)
+
+		return processed_flow
 
 	'''
 	Predicts the label of the given network flow data.
 	If the flow is predicted as botnet, we return the data about the models that made the prediction.
 
-	@returns The labelled network flow (csv format)
+	@returns The prediction verdict ('Normal' or 'Botnet')
 	@returns The json model data, in the form of an alert, from positive models.
 	'''
 	def predict(self, flow):
 		# Predict the label of the flow using each loaded model
 		alert = None
+		prediction = None
 		predicted_model_data = []
-
 
 		# Flow feature exclusion
 		# Required to only pass valid the model feature vector (the features that the models were trained on)
 		# to the models, ready for prediction
-		flow_for_model = self.flow_feature_exclusion()
+		flow = self.flow_feature_exclusion(flow)
 
 		# for model in self.models:
-		#	prediction = model.predict(flow_for_model)
+		#	prediction = model.predict(flow)
 		# 
 		#   if(prediction == 'Botnet'):
 		#		predicted_model_data.append(model.data) 
@@ -178,13 +243,16 @@ class Detector:
 		# If a positive botnet prediction is made from one or more 
 		# 
 		# if(predictied_model_data):
-		# 	alert = generate_alert(labelled_flow, predicted_model_data)
+		#   prediction = 'Botnet'
+		# 	alert = generate_alert(flow, predicted_model_data)
+		# else:
+		prediction = 'Normal'
 
-
+		# TODO
 		# get 'bot_alert_data' from the model object's data that is loaded from the json file that stores model characteristic data
 		# we will use this data in the logging process within the Logger module, generating the alerts
 
-		return labelled_flow, alert_data
+		return prediction, alert
 
 	'''
 	Generates an alert data structure from the specific data of each positive prediction model.
@@ -216,7 +284,7 @@ class Detector:
 
 		# TODO
 
-		valid_flow = None
+		feature_excluded_flow = None
 
 
-		return valid_flow
+		return feature_excluded_flow
