@@ -20,7 +20,7 @@ import json
 from detection_engine_modules.Model import Model
 from detection_engine_modules.Logger import Logger
 from detection_engine_modules.Sniffer import Sniffer
-from detection_engine_modules.Websocket_Controller import Websocket_Controller
+from detection_engine_modules.Websocket_Client import Websocket_Client
 
 
 '''
@@ -42,12 +42,12 @@ class Detector:
 			print("[ Detector ] Debugging enabled.")
 
 		if(self.GUI == True):
-			# Websocket_Controller instance
+			# Websocket_Client instance
 			# Faciliates data transfer through a localhost socket to the backend electron nodejs server
 			self.socket_addr = "ws://localhost:5566"
 
 			# Create websocket connection to the nodejs websocket server
-			self.ws_ctrl = Websocket_Controller()
+			self.ws_ctrl = Websocket_Client()
 
 			# And attempt to connect to the websocker server
 			self.ws_ctrl.connect(self.socket_addr)

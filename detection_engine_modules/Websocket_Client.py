@@ -3,7 +3,7 @@ import websocket
 '''
 
 '''
-class Websocket_Controller:
+class Websocket_Client:
 	'''
 
 	'''
