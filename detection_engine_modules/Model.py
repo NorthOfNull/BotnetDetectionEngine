@@ -15,31 +15,35 @@ class Model:
 		self.model_file_name = model_file_name
 		self.rel_model_file_path = model_directory + '/' + self.model_file_name
 
-
-		self.load_model()
-
-		print("[ Model ] Loaded", self.model_file_name)
-		#print("[ Model ] Model Data =", self.model_metadata)
-
+		self.loading_status = self.load_model()
 
 	'''
 
 	'''
 	def __del__(self):
-		print("Deleting Model object -", self.model_file_name)
-
+		#print("Deleting Model object -", self.model_file_name)
+		return 0
 
 	'''	
 	Opens the model file and de-serialises the pickeled object data.
 	'''
 	def load_model(self):
-		with open(self.rel_model_file_path, 'rb') as model_file:
-			self.model_object = pickle.load(model_file) 
+		try:
+			with open(self.rel_model_file_path, 'rb') as model_file:
+				self.model_object = pickle.load(model_file)
 
-		return 0
+				loading_status = True
 
+				#print("[ Model ] Loaded", self.model_file_name)
+				#print("[ Model ] Model Data =", self.model_metadata)
+		except:
+			loading_status = False
 
-	'''	
+			print("[ Model ] Model loading error -", self.model_file_name)
+
+		return loading_status
+
+	'''
 	Gets the model's specific data from the json data file.
 	'''
 	def get_data(self):
