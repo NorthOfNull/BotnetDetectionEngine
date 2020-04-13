@@ -4,6 +4,7 @@
 #	Python 3.7:
 #		pip install websocket
 #		pip install scikit-learn=0.22.1
+#		pip install pandas
 #
 #	FOR SNIFFER:
 #		tcpdump

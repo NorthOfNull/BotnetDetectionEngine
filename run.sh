@@ -5,10 +5,10 @@ function show_help {
 }
 
 # Check number of cmd line args and limit
-if [ $# -gt 2 ]
+if [ $# -gt 5 ]
 then
 	show_help
-	echo; echo; echo "Exceeded maximum number of command line arguments (2)"; echo;
+	echo; echo; echo "Exceeded maximum number of command line arguments (5)"; echo;
 else
 	# Check if '--help' is requested
 	if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$2" = "-h" ] || [ "$2" = "--help" ]
