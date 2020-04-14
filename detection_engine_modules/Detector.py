@@ -32,8 +32,8 @@ class Detector:
 
 	'''
 	def __init__(self, args):
-		self.GUI = args.gui
-		self.Logging = args.log
+		self.GUI = args.no_gui
+		self.Logging = args.no_log
 		self.Debug = args.debug
 		self.Read = args.read
 

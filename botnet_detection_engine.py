@@ -15,8 +15,8 @@ Parses the command line arguments
 def get_cmd_line_args():
 	parser = argparse.ArgumentParser(description="The Botnet Detection Engine. GUI and logging is enabled by default.")
 
-	parser.add_argument("-g", "--gui", action="store_false", help="Disables GUI.", default=True)
-	parser.add_argument("-l", "--log", action="store_false", help="Disables alert and flow logging to file.", default=True)
+	parser.add_argument("-g", "--no-gui", action="store_false", help="Disables GUI.", default=True)
+	parser.add_argument("-l", "--no-log", action="store_false", help="Disables alert and flow logging to file.", default=True)
 	parser.add_argument("-d", "--debug", action="store_true", help="Enable verbose debugging output.", default=False)
 	parser.add_argument("-r", "--read", action="store", help="Read from \'.pcap\' or Network Flow file.", default=False)
 
@@ -29,8 +29,6 @@ def get_cmd_line_args():
 if __name__ == "__main__":
 	# Parse command line arguments
 	args = get_cmd_line_args()
-
-	print(args)
 
 	# Handle command line arguments
 	#update_global_vars(args)

@@ -17,7 +17,7 @@ else
 	else
 		# Starts electron nodejs instance via main.js
 		# Do not run GUI if -n switch is present
-		if [ "$1" != "--gui" ] && [ "$2" != "--gui" ]
+		if [ "$1" != "--no-gui" ] && [ "$2" != "--no-gui" ]
 		then
 			npm start &
 		fi
