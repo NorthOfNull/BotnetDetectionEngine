@@ -35,12 +35,14 @@ A simple bash script is provided in order to run the flow collection and process
 
 ### Usage
 ```
-usage: ./run.sh [-h --help] [--gui] [--log] 
+usage: botnet_detection_engine.py [-h] [-g] [-l] [-d] [-r READ]
 
 The Botnet Detection Engine. GUI and logging is enabled by default.
 
 optional arguments:
-  -h, --help  show this help message and exit
-  --gui       Disables GUI.
-  --log       Disables alert and flow logging to file.
+  -h, --help            show this help message and exit
+  -g, --no-gui          Disables GUI.
+  -l, --no-log          Disables alert and flow logging to file.
+  -d, --debug           Enable verbose debugging output.
+  -r READ, --read READ  Read from '.pcap' or Network Flow file.
 ```
