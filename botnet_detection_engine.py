@@ -1,5 +1,7 @@
  #!/usr/bin/env python3
 
+import time
+
 import sys
 import argparse
 
@@ -32,6 +34,8 @@ if __name__ == "__main__":
 
 	# Handle command line arguments
 	#update_global_vars(args)
+
+	time.sleep(0.5)
 
 	# TODO
 	# TODO
