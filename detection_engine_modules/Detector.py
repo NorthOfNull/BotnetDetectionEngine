@@ -280,6 +280,10 @@ class Detector:
 	def flow_feature_exclusion(self, flow):
 
 		# TODO
+		# Do a DataFrame.loc on the flow
+		# To extract only the required fields
+		# So the flow DataFrame is ready for predictions
+
 
 		feature_excluded_flow = None
 
