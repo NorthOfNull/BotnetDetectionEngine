@@ -99,9 +99,10 @@ class Sniffer:
 
 
 	'''
-	Reads and returns stdout data from the 'ra' subprocess, or by reading the lines in the pre-processed file handle.
+	Reads and returns stdout data from the 'ra' subprocess (for .pcap files or raw tcpdump network data)
+	or by reading the lines in the pre-processed file handle.
 
-	Also sanitises the flow that it receivies (such as filling in empty csv fields)
+	Also sanitises the flow that it receivies (such as filling in empty csv fields).
 
 	@returns a sniffed network flow; from the stdout of the 'ra' subprocess
 	'''
@@ -114,7 +115,10 @@ class Sniffer:
 			# Gets the flow data from the 'self.ra' stdout
 			sniffed_flow = self.ra.stdout.readline()
 	
-			# Removes the newline character from the end of the
+			# Removes the newline character from the end of the line
 			sniffed_flow = sniffed_flow[:-1]
+
+		# Decode the flow data into utf-8
+		sniffed_flow = sniffed_flow.decode('utf-8')
 	
 		return sniffed_flow

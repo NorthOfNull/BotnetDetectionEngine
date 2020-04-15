@@ -140,14 +140,13 @@ class Detector:
 			labelled_flow = None
 			alert = None
 
-			# Get raw flows from the sniffer
+			# Get raw flow string from the sniffer instance
+			# Gets flow data from the a processed .pcap file, .binetflow csv file or from the network interface
 			flow_string = self.sniffer.get_flow()
 
 			# Process the flow_string into a DataFrame with the required feature vectors being maintained
 			# So that the flow data is ready to make predictions
 			flow = self.process_flow(flow_string)
-
-			flow_string = flow_string.decode('utf-8')
 
 			# If there is a valid flow (i.e. self.process_flow successfully returns a processed_flow)
 			if flow is not False:
@@ -159,26 +158,27 @@ class Detector:
 				prediction, alert = self.predict(flow)
 
 				# Make labelled_flow string
-				labelled_flow = flow_string + str(prediction)
+				labelled_flow = flow_string + prediction
 			else:
-				# Not flow data, so we just output the 'ra' clients flow feature headers
+				# Not flow data, i.e. the data is that of the feature headers
 				labelled_flow = flow_string
 
 			# Output the labelled flow to stdout
 			print(labelled_flow)
+
 
 			# If GUI is enabled
 			if(self.GUI == True):
 				# Send the flow and any alert data to the GUI instance, via the websocket
 				self.ws_ctrl.send(labelled_flow, alert)
 			
-
-
 			# If Logging is enabled
 			if(self.Logging == True):
 				# Log the output to the file
 				self.logger.write_flow_to_file(labelled_flow)
 				self.logger.write_alert_to_file(alert)
+
+		return 0
 
 	'''
 	Processes flow_string into the valid DataFrame, with the column headers included.
@@ -186,9 +186,6 @@ class Detector:
 	@returns The flow DataFrame
 	'''
 	def process_flow(self, flow_string):
-		# Decode string
-		flow_string = flow_string.decode('utf-8')
-
 		if 'Label' in flow_string:
 			# Not a valid flow ('ra' client flow feature headers)
 			processed_flow = False
