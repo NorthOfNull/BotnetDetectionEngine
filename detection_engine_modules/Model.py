@@ -55,6 +55,9 @@ class Model:
 
 	'''
 	def predict(self, flow):
+		# Make a prediction with the model object as to the classificaiton of the flow 
+		prediction = self.model_object.predict(flow)
 
+		print("[ Model ] Prediction =", prediction)
 
-		return labelled_flow
+		return prediction
