@@ -21,11 +21,11 @@ class Logger:
 
 	'''
 	def __del__(self):
-		print("Deleting Logger object and closing the file handle.")
+		print("Deleting Logger object and closing the file handles.")
 
 		if self.flow_file and self.alert_file:
-			close(self.flow_file)
-			close(self.alert_file)
+			self.flow_file.close()
+			self.alert_file.close()
 
 	'''
 	Creates a file handle for the flow log file, with the ability to write to the file.
@@ -33,7 +33,7 @@ class Logger:
 	def open_flow_file(self):
 		# Uses 'self.flow_file_name' for the file name
 		# Opens writeable file as 'self.file_handle' 
-		self.file = open(self.flow_file_name, 'w')
+		self.flow_file = open(self.flow_file_name, 'w')
 
 		print("[ Logger ] Network Flow file successfully opened!")
 
@@ -42,12 +42,11 @@ class Logger:
 	'''
 	Writes the flow data to the file.
 	'''
-	def write_flow_to_file(self, flow):
-		# Decode the data into utf-8 format
-		flow_string = flow.decode("utf-8")
+	def write_flow_to_file(self, flow_string):
+
 
 		# Write to file
-		self.file.write(flow_string + "\n")
+		self.flow_file.write(flow_string + "\n")
 
 		return 0
 
@@ -57,7 +56,7 @@ class Logger:
 	def open_alert_file(self):
 		# Uses 'self.alert_file_name' for the file name
 		# Opens writeable file as 'self.file_handle' 
-		self.file = open(self.alert_file_name, 'w')
+		self.alert_file = open(self.alert_file_name, 'w')
 
 		print("[ Logger ] Alert file successfully opened!")
 
@@ -67,11 +66,10 @@ class Logger:
 	Writes the alert data to the file.
 	'''
 	def write_alert_to_file(self, alert):
-		# Decode the data into utf-8 format
-		#alert = flow.decode("utf-8")
+		alert = "TEST ALERT!"
 
 		# Write to file
-		self.file.write(flow_string + "\n")
+		self.alert_file.write(alert + "\n")
 
 		return 0
 
