@@ -7,3 +7,5 @@ test.py
 alerts.log
 flows.binetflow
 /Models
+detection_engine_modules/__pycache__
+__pycache__/
