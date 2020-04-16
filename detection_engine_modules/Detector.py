@@ -45,6 +45,7 @@ class Detector:
 
 		self.models = []
 		self.model_directory = 'Models'
+		self.socket_addr = "ws://localhost:5566"
 
 
 		if(self.Debug):
@@ -61,13 +62,11 @@ class Detector:
 		if(self.GUI == True):
 			# Websocket_Client instance
 			# Faciliates data transfer through a localhost socket to the backend electron nodejs server
-			self.socket_addr = "ws://localhost:5566"
-
 			# Create websocket connection to the nodejs websocket server
-			self.ws_ctrl = Websocket_Client()
+			self.ws_client = Websocket_Client()
 
 			# And attempt to connect to the websocker server
-			self.ws_ctrl.connect(self.socket_addr)
+			self.ws_client.connect(self.socket_addr)
 
 		if(self.Logging == True):
 			# Flow and Alert file logging
@@ -81,49 +80,6 @@ class Detector:
 		if(self.Debug == True):
 			print("Deleting Detector object and the loaded models.")
 
-	'''
-	De-serialisation of trained Machine Learning models that are contained in the 'Models' directory.
-	Loaded objects get stored in the 'self.models' array, along with their descriptive data.
-
-	'''
-	def load_models(self):
-		models = []
-		model_data = None
-
-		if(self.Debug):
-			print("[ Detector ] Loading Models...")
-
-		# Handle nothing being present in directory
-		# Handle directory not being present
-		assert(os.path.exists(self.model_directory))
-
-		# Get model metadata from the json file
-		data_file = self.model_directory + '/model_data.json'
-		model_json_metadata = self.get_model_data(data_file)
-
-
-		# Load models that have file names present within the model_json_metadata file (filenames are stored as the json keys)
-		for model_file_name in model_json_metadata.keys():
-			# Instantiate model object, with the full relative model file path being passed as an argument
-			model_data = model_json_metadata[model_file_name]
-
-			instance_of_model = Model(self.model_directory, model_file_name, model_data)
-
-			if(instance_of_model.loading_status == True):
-				# If the model is succesfully loaded
-				# Add the model object to the Detector
-				models.append(instance_of_model)
-			else:
-				# Object cleanup
-				del instance_of_model
-
-		if(self.Debug):
-			print("[ Detector ] Loaded", len(models), "/", len(model_json_metadata.keys()), "models.")
-
-		if(len(models) == 0):
-			raise Exception("[ Detector ] Model Loading Failed")
-
-		return models
 
 	'''
 	Main running loop for the detector.
@@ -170,15 +126,61 @@ class Detector:
 			# If GUI is enabled
 			if(self.GUI == True):
 				# Send the flow and any alert data to the GUI instance, via the websocket
-				self.ws_ctrl.send(labelled_flow, alert)
+				self.ws_client.send(labelled_flow, alert)
 			
 			# If Logging is enabled
 			if(self.Logging == True):
-				# Log the output to the file
+				# Log the labelled flow output to the file
 				self.logger.write_flow_to_file(labelled_flow)
-				self.logger.write_alert_to_file(alert)
+
+				if(alert != None):
+					self.logger.write_alert_to_file(alert)
 
 		return 0
+
+	'''
+	De-serialisation of trained Machine Learning models that are contained in the 'Models' directory.
+	Loaded objects get stored in the 'self.models' array, along with their descriptive data.
+
+	'''
+	def load_models(self):
+		models = []
+		model_data = None
+
+		if(self.Debug):
+			print("[ Detector ] Loading Models...")
+
+		# Handle nothing being present in directory
+		# Handle directory not being present
+		assert(os.path.exists(self.model_directory))
+
+		# Get model metadata from the json file
+		data_file = self.model_directory + '/model_data.json'
+		model_json_metadata = self.get_model_data(data_file)
+
+
+		# Load models that have file names present within the model_json_metadata file (filenames are stored as the json keys)
+		for model_file_name in model_json_metadata.keys():
+			# Instantiate model object, with the full relative model file path being passed as an argument
+			model_data = model_json_metadata[model_file_name]
+
+			instance_of_model = Model(self.model_directory, model_file_name, model_data)
+
+			if(instance_of_model.loading_status == True):
+				# If the model is succesfully loaded
+				# Add the model object to the Detector
+				models.append(instance_of_model)
+			else:
+				# Object cleanup
+				del instance_of_model
+
+		if(self.Debug):
+			print("[ Detector ] Loaded", len(models), "/", len(model_json_metadata.keys()), "models.")
+
+		if(len(models) == 0):
+			raise Exception("[ Detector ] Model Loading Failed")
+
+		return models
 
 	'''
 	Processes flow_string into the valid DataFrame, with the column headers included.
@@ -196,11 +198,10 @@ class Detector:
 			# Remove the last empty 'label' data field from the flow 
 			flow.pop()
 
-			# Fill in empty fields
+			# Fill in empty csv fields
 			for i, data in enumerate(flow):
-				if data is None:
+				if not data:
 					flow[i] = 0
-					print(flow[i])
 
 			# Process into DataFrame, with the relative dataset feature column headers
 			processed_flow = pd.DataFrame([flow], columns=self.dataset_feature_columns)
@@ -216,6 +217,7 @@ class Detector:
 	'''
 	def predict(self, flow):
 		# Predict the label of the flow using each loaded model
+		original_flow = flow
 		alert = None
 		prediction = None
 		predicted_model_data = []
@@ -225,22 +227,41 @@ class Detector:
 		# to the models, ready for prediction
 		flow = self.flow_feature_exclusion(flow)
 
-		# for model in self.models:
-		#	prediction = model.predict(flow)
-		# 
-		#   if(prediction == 'Botnet'):
-		#		predicted_model_data.append(model.data) 
-		#	
-		# if predicted_model_data:
-		#	if(self.Debug):
-		#		print("DETECTOR BOTNET PREDICTION:")
-		#		print(predicted_model_data)
+		# Iterate over each running model instance, making predictions on each
+		for model in self.models:
+			model_prediction = model.predict(flow)
+
+			if(model_prediction == 'Botnet'):
+				# Botnet prediciton
+				# Add model data to the array
+				predicted_model_data.append(model.model_metadata)
+
+
+		if(len(predicted_model_data) > 0):
+			# If we have positive predicitons
+			# Label overall prediciton as 'Botnet'
+			prediction = 'Botnet'
+
+			# Generate alert here
+
+			# TODO
+			# TODO
+			# TODO
+			alert = generate_alert(original_flow, predicted_model_data)
+		else:
+			prediction = 'Normal'
+
+
+		print("PREDICTION =", prediction)
+
+		if(self.Debug and prediction == 'Botnet'):
+			print("Overall prediction =", prediction)
+			print("Predicted model metadata =", predicted_model_data)
 
 
 		# If a positive botnet prediction is made from one or more 
 		# 
-		# if(predictied_model_data):
-		#   prediction = 'Botnet'
+		# if(predictied_model_data != None):
 		# 	alert = generate_alert(flow, predicted_model_data)
 		# else:
 		prediction = 'Normal'
@@ -256,8 +277,11 @@ class Detector:
 
 	@returns The generated alert data
 	'''
-	def generate_alert(self, predicted_model_data):
-		print("!!!!!!!GENERATING ALERT!!!!!!!!")		
+	def generate_alert(self, original_flow, predicted_model_data):
+		alert = "!!!!!!!GENERATING ALERT!!!!!!!!"
+
+		print(alert)
+
 
 		# get 'predicted_model_data' from the model object's data that is loaded from the json file that stores model characteristic data
 		# we will use this data in the logging process within the Logger module, generating the alerts
@@ -278,14 +302,12 @@ class Detector:
 	
 	'''
 	def flow_feature_exclusion(self, flow):
+		# Exclude features that do not get used in the prediction of the flow
+		feature_vectors_to_keep = ['sTos','dTos','SrcWin','DstWin','sHops','dHops','sTtl',
+		'dTtl','TcpRtt','SynAck','AckDat','SrcPkts','DstPkts','SrcBytes','DstBytes','SAppBytes',
+		'DAppBytes','Dur','TotPkts','TotBytes','TotAppByte','Rate','SrcRate','DstRate']
 
-		# TODO
-		# Do a DataFrame.loc on the flow
-		# To extract only the required fields
-		# So the flow DataFrame is ready for predictions
-
-
-		feature_excluded_flow = None
-
+ 		# Only return the flow DataFrame features that match those defined in the required string
+		feature_excluded_flow = flow.loc[:, feature_vectors_to_keep]
 
 		return feature_excluded_flow
