@@ -1,3 +1,4 @@
+import sys
 import time
 import websocket
 
@@ -16,7 +17,8 @@ class Websocket_Client:
 
 	'''
 	def __del__(self):
-		self.socket.close()
+		if self.socket is not False:
+			self.socket.close()
 
 		print("Deleting Websocket Client.")
 
@@ -29,10 +31,9 @@ class Websocket_Client:
 		try:
 			self.socket = websocket.create_connection(self.socket_addr)
 
-			print("[ Websocket_Client ] ] Connected to Electron!")
+			print("[ Websocket_Client ] Connected to Electron!")
 		except:
-			if(self.attempt_reconnect == False):
-				raise Exception("[ Websocket_Client ] ] EXCEPTION - Could not establish a connection")
+			raise Exception("[ Websocket_Client ] EXCEPTION - Could not establish a connection")
 
 	'''
 	Sends the labelled_flow and alert_data as a JSON data structure through the websocket 
@@ -70,10 +71,10 @@ class Websocket_Client:
 			try:
 				self.connect(self.socket_addr)
 
-				print("[ Websocket_Client ] ] Connection re-established!")
+				print("[ Websocket_Client ] Connection re-established!")
 				break
 			except:
-				print("[ Websocket_Client ] ] Attempt ", attempt, "failed...")
+				print("[ Websocket_Client ] Attempt ", attempt, "failed...")
 				time.sleep(2)
 
 			if attempt == (max_attempts - 1):
@@ -81,7 +82,6 @@ class Websocket_Client:
 				print("--- Botnet Detection Engine Terminating ---")
 
 				# Kills the parent process (and thus, the sniffer's subprocesses, as defined in the sniffer destructor)
-				self.socket = False
 				sys.exit()
 
 		return self.socket
