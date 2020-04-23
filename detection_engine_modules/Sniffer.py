@@ -51,16 +51,13 @@ class Sniffer:
 		else:
 			if(self.read_from_file == False):
 				# Kill tcpdump
-				#os.killpg(os.getpgid(self.tcpdump.pid), signal.SIGTERM)
-				self.tcpdump.kill()
+				os.killpg(self.tcpdump.pid, signal.SIGTERM)
 
 			# Kill argus
-			#os.killpg(os.getpgid(self.argus.pid), signal.SIGTERM)
-			self.argus.kill()
+			os.killpg(self.argus.pid, signal.SIGTERM)
 			
 			# Kill ra
-			#os.killpg(os.getpgid(self.ra.pid), signal.SIGTERM)
-			self.ra.kill()
+			os.killpg(self.ra.pid, signal.SIGTERM)
 
 		print("Deleting Sniffer object and any relevant running subprocesses.")
 
@@ -72,7 +69,7 @@ class Sniffer:
 		# BASE RA FIELDS COMMAND
 		#ra_command = 'ra -c \',\' -n -s -state -s -flgs -s +1dur +8state +9stos +10dtos +sbytes'
 
-		started = None
+		started = False
 
 		if(self.file == None):
 			# If we are not reading from a pre-processed network flow file ('.binetflow' or '.csv'),
@@ -80,30 +77,16 @@ class Sniffer:
 			try:
 				if(self.read_from_file == True):
 					# '.pcap' file subprocess setup
-					self.argus = Popen(self.argus_command, stdout=PIPE, shell=True)
-
-					# TEST
-					#self.argus = Popen(self.argus_command, stdout=PIPE, shell=True, preexec_fn=os.setsid)
+					self.argus = Popen(self.argus_command, stdout=PIPE, shell=True, preexec_fn=os.setsid)
 				else:
 					# Network sniffer subprocess setup
 					# Requires tcpdump stdout to be piped into argus stdin
-
-					# TEST
-					self.tcpdump = Popen(self.tcpdump_command, stdout=PIPE, shell=True)
-					self.argus = Popen(self.argus_command, stdin=self.tcpdump.stdout, stdout=PIPE, shell=True)
-
-					# BACKUP
-					#self.tcpdump = Popen(self.tcpdump_command, stdout=PIPE, shell=True, preexec_fn=os.setsid)
-					#self.argus = Popen(self.argus_command, stdin=self.tcpdump.stdout, stdout=PIPE, shell=True, preexec_fn=os.setsid)
+					self.tcpdump = Popen(self.tcpdump_command, stdout=PIPE, shell=True, preexec_fn=os.setsid)
+					self.argus = Popen(self.argus_command, stdin=self.tcpdump.stdout, stdout=PIPE, shell=True, preexec_fn=os.setsid)
 
 				# Common for both '.pcap' and network flow data processing
 				# Gets stdin from argus subprocess
-
-				# TEST
-				self.ra = Popen(self.ra_command, stdin=self.argus.stdout, stdout=PIPE, shell=True)
-
-				# BACKUP
-				# self.ra = Popen(self.ra_command, stdin=self.argus.stdout, stdout=PIPE, shell=True, preexec_fn=os.setsid)
+				self.ra = Popen(self.ra_command, stdin=self.argus.stdout, stdout=PIPE, shell=True, preexec_fn=os.setsid)
 
 				print("[ Sniffer  ] Started network sniffer and flow processor.")
 			except:
