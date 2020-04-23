@@ -32,10 +32,18 @@ if __name__ == "__main__":
 	# Parse command line arguments
 	args = get_cmd_line_args()
 
+	# Disable GUI is '-r'/'--read' switch is present
+	# This is due to the fact that live network sniffing will not occur
+	# And thus, we do not need the user interface output
+	if(args.read == True):
+		args.no_gui = True
+
+
+
 	# Handle command line arguments
 	#update_global_vars(args)
 
-	time.sleep(0.5)
+	time.sleep(1)
 
 	# TODO
 	# TODO
