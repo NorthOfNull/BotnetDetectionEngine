@@ -107,10 +107,7 @@ class Detector:
 			# If there is a valid flow (i.e. self.process_flow successfully returns a processed_flow)
 			if flow is not False:
 				# Predict the flow's class, using the detector's models
-
-				# TODO
-				# NETFLOW DATA GETS PREDICTED BY THE MODEL AND LABELLED HERE
-				# BEFORE BEING SENT
+				# Takes the DataFrame network flow data and predicts against each model
 				prediction, alert = self.predict(flow)
 
 				# Make labelled_flow string
@@ -120,7 +117,7 @@ class Detector:
 				labelled_flow = flow_string
 
 			# Output the labelled flow to stdout
-			print(labelled_flow)
+			print(labelled_flow + "\n")
 
 
 			# If GUI is enabled
@@ -238,15 +235,11 @@ class Detector:
 
 
 		if(len(predicted_model_data) > 0):
-			# If we have positive predicitons
+			# If we have any positive predicitons
 			# Label overall prediciton as 'Botnet'
 			prediction = 'Botnet'
 
-			# Generate alert here
-
-			# TODO
-			# TODO
-			# TODO
+			# And generate an alert, filled with relevant flow data and the exhibited botnet-like characteristics of the traffic
 			alert = generate_alert(original_flow, predicted_model_data)
 		else:
 			prediction = 'Normal'
@@ -259,12 +252,6 @@ class Detector:
 			print("Predicted model metadata =", predicted_model_data)
 
 
-		# If a positive botnet prediction is made from one or more 
-		# 
-		# if(predictied_model_data != None):
-		# 	alert = generate_alert(flow, predicted_model_data)
-		# else:
-		prediction = 'Normal'
 
 		# TODO
 		# get 'bot_alert_data' from the model object's data that is loaded from the json file that stores model characteristic data
