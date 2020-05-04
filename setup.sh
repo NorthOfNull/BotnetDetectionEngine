@@ -30,10 +30,11 @@ sudo pip3 install --upgrade websocket-client
 
 
 # Network Sniffer
-
+sudo apt-get install argus-server
 
 
 # Node
+sudo apt-get install npm
 
 
 # Mark run file as executable
