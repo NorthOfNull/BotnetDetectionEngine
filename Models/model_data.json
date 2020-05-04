@@ -1,0 +1,105 @@
+{
+	"Neris(1).model": {
+		"Bot":"Neris",
+		"Communication Protocol":"IRC",
+		"Activity": [
+			"Spam",
+			"Click Fraud"
+		]
+	},
+	"Neris(2).model": {
+		"Bot":"Neris",
+		"Communication Protocol":"IRC",
+		"Activity": [
+			"Spam",
+			"Click Fraud"
+		]
+	},
+	"Rbot(3).model": {
+		"Bot":"Rbot",
+		"Communication Protocol":"IRC",
+		"Activity": [
+			"Port Scanning"
+		]
+	},
+	"Rbot(4).model": {
+		"Bot":"Rbot",
+		"Communication Protocol":"IRC",
+		"Activity": [
+			"UDP and ICMP DDoS"
+		]
+	},
+	"Virut(5).model": {
+		"Bot":"Virut",
+		"Communication Protocol":"HTTP",
+		"Activity": [
+			"Spam",
+			"Port Scanning (of web proxies)"
+		]
+	},
+	"Menti(6).model": {
+		"Bot":"Menti",
+		"Communication Protocol":"Proprietary",
+		"Activity": [
+			"Spam",
+			"Port Scanning"
+		]
+	},
+	"Sogou(7).model": {
+		"Bot":"Sogou",
+		"Communication Protocol":"HTTP",
+		"Activity": [
+			"Web Spider"
+		]
+	},
+	"Murlo(8).model": {
+		"Bot":"Murlo",
+		"Communication Protocol":"HTTP",
+		"Activity": [
+			"Chinese C&C",
+			"Spyware (Web Broswer Data Exfiltration)",
+			"RDP Propagation",
+			"File Deletion"
+		]
+	},
+	"Neris(9).model": {
+		"Bot":"Neris",
+		"Communication Protocol":"IRC",
+		"Activity": [
+			"Spam",
+			"Click Fraud",
+			"Port Scanning"
+		]
+	},
+	"Rbot(10).model": {
+		"Bot":"Rbot",
+		"Communication Protocol":"IRC",
+		"Activity": [
+			"UDP DDoS"
+		]
+	},
+	"Rbot(11).model": {
+		"Bot":"Rbot",
+		"Communication Protocol":"IRC",
+		"Activity": [
+			"ICMP DDoS"
+		]
+	},
+	"NSIS_ay(12).model": {
+		"Bot":"NSIS_ay",
+		"Communication Protocol":"P2P",
+		"Activity": [
+			"Spam",
+			"Click Fraud",
+			"Credential Harvesting"
+		]
+	},
+	"Virut(13).model": {
+		"Bot":"Virut",
+		"Communication Protocol":"HTTP",
+		"Activity": [
+			"Spam",
+			"Port Scanning"
+		]
+	}
+}
