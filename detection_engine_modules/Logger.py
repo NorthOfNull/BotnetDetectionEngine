@@ -1,4 +1,4 @@
-
+import json
 
 '''
 Logs labelled flows and alerts
@@ -8,6 +8,7 @@ class Logger:
 
 	'''
 	def __init__(self):
+		self.alert_no = 1
 		self.flow_file = None
 		self.alert_file = None
 
@@ -43,8 +44,6 @@ class Logger:
 	Writes the flow data to the file.
 	'''
 	def write_flow_to_file(self, flow_string):
-
-
 		# Write to file
 		self.flow_file.write(flow_string + "\n")
 
@@ -63,13 +62,30 @@ class Logger:
 		return 0
 
 	'''
-	Writes the alert data to the file.
+	Formats and writes the json alert data to the file.
 	'''
 	def write_alert_to_file(self, alert):
-		alert = "TEST ALERT!"
+		formatted_alert = "----- Alert #" + str(self.alert_no) + " -----"
+
+		for key in alert:
+			# Format data into a suitable format for file output
+			# key + { values }
+			line = key + " = " + str(alert[key])
+
+			# Append line to the formatted_alert string
+			formatted_alert += "\n" + line
+
+		# Newline at end of alert output to space out alerts
+		formatted_alert += "\n\n"
+
+		# Print the formatted_alert output to the command line interface
+		print(formatted_alert)
 
 		# Write to file
-		self.alert_file.write(alert + "\n")
+		self.alert_file.write(formatted_alert)
+
+		# Iterate alert_no
+		self.alert_no += 1
 
 		return 0
 

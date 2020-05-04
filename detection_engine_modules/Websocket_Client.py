@@ -1,5 +1,6 @@
 import sys
 import time
+import json
 import websocket
 
 '''
@@ -35,20 +36,22 @@ class Websocket_Client:
 		except:
 			raise Exception("[ Websocket_Client ] EXCEPTION - Could not establish a connection")
 
+		return True
+
 	'''
 	Sends the labelled_flow and alert_data as a JSON data structure through the websocket 
 	'''
 	def send(self, labelled_flow, alert):
-		# Package data
+		if alert is None:
+			# Only package the labelled_flow, since we have no alerts to send
+			data = {"flow": labelled_flow}
+		else:
+			# Package the flow and any alert json data together
+			data = {"flow": labelled_flow,
+			    	"alert": alert}
 
-		# Package labelled_flow and alert together
-
-		# TODO
-		# TODO
-		# TODO
-
-		data = labelled_flow
-
+		# Convert to json string
+		data = json.dumps(data)
 
 		# Send data
 		try:

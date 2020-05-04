@@ -1,10 +1,8 @@
 node_modules
 botnet_detection_engine_LINE_WORKING.py
 botnet_detection_engine.py.bak
-/gui
 package-lock.json
 test.py
 alerts.log
 flows.binetflow
-/Models
 /__pycache__/*

@@ -22,6 +22,7 @@ git clone github.com/NorthOfNull/BotnetDetectionEngine
 
 A setup script is provided in order to check for and install any prerequisites required for program execution:
 ```
+chmod +x setup.sh
 ./setup.sh
 ```
 
@@ -46,3 +47,9 @@ optional arguments:
   -d, --debug           Enable verbose debugging output.
   -r READ, --read READ  Read from '.pcap' or Network Flow file.
 ```
+
+### Testing
+```
+sudo python3 unit_test.py
+```
+

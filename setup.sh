@@ -17,4 +17,24 @@
 #	NODE JS ELECTRON STUFF? NPM?
 # 
 
-sudo chmod +x run
+
+# Superuser
+
+
+# Python
+sudo apt-get install python3-pip
+
+sudo pip3 install --upgrade pandas
+sudo pip3 install --upgrade scikit-learn==0.22.1
+sudo pip3 install --upgrade websocket-client
+
+
+# Network Sniffer
+
+
+
+# Node
+
+
+# Mark run file as executable
+sudo chmod +x ./run.sh

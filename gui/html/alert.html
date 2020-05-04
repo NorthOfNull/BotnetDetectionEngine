@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
+        <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+        <link rel="stylesheet" type="text/css" href="../css/style.css">
+        <script type="text/javascript" src="../js/nav.js"></script>
+        <script type="text/javascript" src="../js/renderer.js"></script>
+        <title>Alerts</title>
+    </head>
+
+    <body>
+        <nav id='nav'>
+            <a id="navMenuIcon" onclick="toggleNav()">
+                <img src="../icons/navmenu.png">
+            </a>
+            <div class="navItems">
+                <a href="index.html">
+                    <img src="../icons/home.png"></img>
+                    <p>Home</p>
+                </a>
+                <a href="#">
+                    <img src="../icons/alert.png"></img>
+                    <p>Alerts</p>
+                </a>
+                <a href="activity_graph.html">
+                    <img src="../icons/graph.png"></img>
+                    <p>Activity</p>
+                </a>
+                <a href="log.html">
+                    <img src="../icons/log.png"></img>
+                    <p>Flow Log</p>
+                </a>
+            </div>
+        </nav>
+
+        <div class="mainContainer"> 
+            <h1>Alerts</h1>
+
+            <div id="alertsContainer">
+                
+            </div>
+        </div>
+
+
+        <script>
+            toggleNav(called_on_page_init=true);
+        </script>
+    </body>
+</html>

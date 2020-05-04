@@ -1,4 +1,5 @@
 import os
+import sys
 import signal
 from subprocess import Popen, PIPE
 
@@ -15,7 +16,7 @@ class Sniffer:
 	'''
 
 	'''
-	def __init__(self, read_from_file):
+	def __init__(self, read_from_file=False):
 		self.tcpdump = None
 		self.argus = None
 		self.ra = None
@@ -23,17 +24,19 @@ class Sniffer:
 		self.read_from_file = read_from_file
 		self.file = None
 
-		if(self.read_from_file == True):
+		if self.read_from_file is not False:
 			if '.pcap' in self.read_from_file:
 				# '.pcap' file processing command
-				self.argus_command = 'argus -f -r' + read_from_file + '-w -'
+				self.argus_command = 'argus -f -r' + read_from_file + ' -w -'
 				
-				print("[ Sniffer ] PCAP FILE INPUT")
+				print("[ Sniffer ] Packet Capture file input detected!")
 			elif '.binetflow' or '.csv' in self.read_from_file:
 				# Network Flow File
 				self.file = open(self.read_from_file)
 
-				print("[ Sniffer ] NETWORK FLOW OR CSV FILE INPUT")
+				print("[ Sniffer ] Network flow file (csv or binetflow) input detected!")
+			else:
+				raise Exception("File type is incorrect! Expecting '.pcap', '.csv' or '.binetflow files!")
 		else:
 			# Network flow processing pipeline initialisation
 			# ra command includes the full extended network flow feature fields required for the machine learning models
@@ -50,18 +53,23 @@ class Sniffer:
 			self.file.close()
 		else:
 			if(self.read_from_file == False):
-				# Kill tcpdump
-				os.killpg(self.tcpdump.pid, signal.SIGTERM)
+				if self.tcpdump is not None:
+					# Kill tcpdump
+					os.killpg(self.tcpdump.pid, signal.SIGTERM)
 
-			# Kill argus
-			os.killpg(self.argus.pid, signal.SIGTERM)
+			if self.argus is not None:
+				# Kill argus
+				os.killpg(self.argus.pid, signal.SIGTERM)
 			
-			# Kill ra
-			os.killpg(self.ra.pid, signal.SIGTERM)
+			if self.ra is not None:
+				# Kill ra
+				os.killpg(self.ra.pid, signal.SIGTERM)
 
 		print("Deleting Sniffer object and any relevant running subprocesses.")
 
 	'''
+	Starts the required subprocesses for the sniffer.
+	Operation depends on the sniffer object's attribute values.
 
 	@returns boolean for status of sniffer
 	'''
@@ -75,7 +83,7 @@ class Sniffer:
 			# If we are not reading from a pre-processed network flow file ('.binetflow' or '.csv'),
 			# we setup the subprocesses accordingly for '.pcap' file or raw network data processing.
 			try:
-				if(self.read_from_file == True):
+				if self.read_from_file is not False:
 					# '.pcap' file subprocess setup
 					self.argus = Popen(self.argus_command, stdout=PIPE, shell=True, preexec_fn=os.setsid)
 				else:
@@ -92,12 +100,11 @@ class Sniffer:
 			except:
 				raise Exception("[ Sniffer ] Netflow Collection Initalisation Failed!")
 		else:
-			print("[ Sniffer ] Reading from pre-processed file ", self.read_from_file)
+			print("[ Sniffer ] Reading from pre-processed file =", self.read_from_file)
 
 		started = True
 
 		return started
-
 
 	'''
 	Reads and returns stdout data from the 'ra' subprocess (for .pcap files or raw tcpdump network data)
@@ -108,18 +115,25 @@ class Sniffer:
 	@returns a sniffed network flow; from the stdout of the 'ra' subprocess
 	'''
 	def get_flow(self):
-		if(self.file):
+		if self.file is not None:
 			# Read line from file handle
-			sniffed_flow = self.file.read()
+			sniffed_flow = self.file.readline()
+
+			if(len(sniffed_flow) == 0):
+				# End of File
+				print("[ Sniffer ] Reached EOF.")
+				sys.exit()
 		else:
-			# For '.pcap' file or sniffer network data
+			# For '.pcap' file or sniffed network data
 			# Gets the flow data from the 'self.ra' stdout
 			sniffed_flow = self.ra.stdout.readline()
-	
-			# Removes the newline character from the end of the line
-			sniffed_flow = sniffed_flow[:-1]
 
-		# Decode the flow data into utf-8
-		sniffed_flow = sniffed_flow.decode('utf-8')
+			# Decode the flow data into utf-8
+			sniffed_flow = sniffed_flow.decode('utf-8')
+
+
+		if sniffed_flow[-1] == '\n':
+			# Removes the newline character from the end of the line, if present
+			sniffed_flow = sniffed_flow[:-1]
 	
 		return sniffed_flow

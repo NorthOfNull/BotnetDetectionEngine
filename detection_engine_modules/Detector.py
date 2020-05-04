@@ -1,20 +1,5 @@
-# init
-#	self.model_dir
-#	self.models (array of de-serialised model objects)
-
-# del
-
-# load_models(self) (de-serialise (de-pickle) the models from the directory)
-
-# predict(self, flow)
-#	for model in self.models:
-#		prediction = predict(flow)
-#   	flow = flow.append(prediction)
-#	
-#	return flow
-
-
 import os
+import sys
 import json
 import pandas as pd
 
@@ -32,10 +17,10 @@ class Detector:
 
 	'''
 	def __init__(self, args):
-		self.GUI = args.no_gui
-		self.Logging = args.no_log
-		self.Debug = args.debug
-		self.Read = args.read
+		self.GUI = args['no_gui']
+		self.Logging = args['no_log']
+		self.Debug = args['debug']
+		self.Read = args['read']
 
 		self.dataset_feature_columns = ['SrcAddr', 'DstAddr', 'Proto', 'Sport', 'Dport', 'State',
 			'sTos', 'dTos', 'SrcWin', 'DstWin', 'sHops', 'dHops', 'StartTime', 'LastTime', 'sTtl',
@@ -57,6 +42,7 @@ class Detector:
 		# Sniffs raw data from a SPAN'd port, performs netflow feature extraction.
 		# Mimics bash shell behaviour of:
 		# $ TCPDUMP (interface) | ARGUS | RA CLIENT (CSV Formatted Network Flow Exporter).
+		# Or, reads from a given file
 		self.sniffer = Sniffer(self.Read)
 
 		if(self.GUI == True):
@@ -131,6 +117,7 @@ class Detector:
 				self.logger.write_flow_to_file(labelled_flow)
 
 				if(alert != None):
+					# If ther is an alert, we log it to file
 					self.logger.write_alert_to_file(alert)
 
 		return 0
@@ -158,10 +145,11 @@ class Detector:
 
 		# Load models that have file names present within the model_json_metadata file (filenames are stored as the json keys)
 		for model_file_name in model_json_metadata.keys():
-			# Instantiate model object, with the full relative model file path being passed as an argument
+			# Get the model's data
 			model_data = model_json_metadata[model_file_name]
 
-			instance_of_model = Model(self.model_directory, model_file_name, model_data)
+			# Instantiate model object, with the full relative directory path, model file name and it's metadata being passed as an argument
+			instance_of_model = Model(self.model_directory, model_file_name, model_data, self.Debug)
 
 			if(instance_of_model.loading_status == True):
 				# If the model is succesfully loaded
@@ -171,11 +159,12 @@ class Detector:
 				# Object cleanup
 				del instance_of_model
 
-		if(self.Debug):
-			print("[ Detector ] Loaded", len(models), "/", len(model_json_metadata.keys()), "models.")
+
+		print("[ Detector ] Loaded", len(models), "/", len(model_json_metadata.keys()), "models.")
 
 		if(len(models) == 0):
-			raise Exception("[ Detector ] Model Loading Failed")
+			print("[ Detector ] No valid models found to load.")
+			sys.exit()
 
 		return models
 
@@ -192,8 +181,10 @@ class Detector:
 			# Split flow_string into array
 			flow = flow_string.split(',')
 
-			# Remove the last empty 'label' data field from the flow 
-			flow.pop()
+			# If the last field is empty
+			if(flow[-1] == ''):
+				# Remove the last empty 'label' data field from the flow
+				flow.pop()
 
 			# Fill in empty csv fields
 			for i, data in enumerate(flow):
@@ -240,18 +231,14 @@ class Detector:
 			prediction = 'Botnet'
 
 			# And generate an alert, filled with relevant flow data and the exhibited botnet-like characteristics of the traffic
-			alert = generate_alert(original_flow, predicted_model_data)
+			alert = self.generate_alert(original_flow, prediction, predicted_model_data)
 		else:
 			prediction = 'Normal'
 
 
-		print("PREDICTION =", prediction)
-
 		if(self.Debug and prediction == 'Botnet'):
-			print("Overall prediction =", prediction)
-			print("Predicted model metadata =", predicted_model_data)
-
-
+			print("[ Debug ] Overall prediction =", prediction)
+			print("[ Debug ] Alert:\n", alert)
 
 		# TODO
 		# get 'bot_alert_data' from the model object's data that is loaded from the json file that stores model characteristic data
@@ -260,18 +247,76 @@ class Detector:
 		return prediction, alert
 
 	'''
-	Generates an alert data structure from the specific data of each positive prediction model.
+	Generates an alert json data structure from the specific data of each positive prediction model.
 
-	@returns The generated alert data
+	@returns The generated alert data in json format.
 	'''
-	def generate_alert(self, original_flow, predicted_model_data):
-		alert = "!!!!!!!GENERATING ALERT!!!!!!!!"
+	def generate_alert(self, flow, prediction, predicted_model_data):
+		if(self.Debug == True):
+			print("[ Detector ] Botnet flow found. Generating alert...")
 
-		print(alert)
+		# If flow is botnet, we generate the alert
+		# Construction is implemented via getting data from the flow
+		# And also data from the models that predicted that particular behaviour
+		if(prediction == 'Botnet'):
+			# Get flow data
+			# Source data
+			SrcAddr = flow['SrcAddr'].item()
+			Sport = flow['Sport'].item()
+
+			# Destination data
+			DstAddr = flow['DstAddr'].item()
+			Dport = flow['Dport'].item()
+
+			# Protocol data
+			Proto = flow['Proto'].item()
+
+			# Date-time and duration data
+			StartTime = flow['StartTime'].item()
+			Dur = flow['Dur'].item()
 
 
-		# get 'predicted_model_data' from the model object's data that is loaded from the json file that stores model characteristic data
-		# we will use this data in the logging process within the Logger module, generating the alerts
+			# Get predicted model data
+			Bots = []
+			Comms_protocol = []
+			Activity = []
+
+			for data in predicted_model_data:
+				# Bot name data
+				bot_name = data['Bot']
+
+				if bot_name not in Bots:
+					Bots.append(bot_name)
+
+				# Bot comms_protocl data
+				bot_comm_protocol = data['Communication Protocol']
+
+				if bot_comm_protocol not in Comms_protocol:
+					Comms_protocol.append(bot_comm_protocol)
+
+				# Bot Activity data
+				bot_activity = data['Activity']
+
+				# Handles the presence of more than one activity characteristic
+				for activity_item in bot_activity:
+					if activity_item not in Activity:
+						Activity.append(activity_item)
+
+
+		# Generate json alert
+		# First create the alert data
+		alert = {"Src": {"Addr": SrcAddr,
+						"Port": Sport},
+				"Dst": {"Addr": DstAddr,
+						"Port": Dport},
+				"Proto": Proto,
+				"Time":{"StartTime": StartTime,
+						"Dur": Dur},
+				"Bots": Bots,
+				"Comms_protocol": Comms_protocol,
+				"Activity": Activity
+				}
+
 
 		return alert
 
@@ -280,8 +325,12 @@ class Detector:
 	'''
 	def get_model_data(self, data_file):
 		with open(data_file) as data_file:
-			# Parse json data from the file
-			model_data = json.load(data_file)
+			try:
+				# Parse json data from the file
+				model_data = json.load(data_file)
+			except:
+				print("[ Detector ] 'Model_data.json' file read error.")
+				sys.exit()
 
 		return model_data
 

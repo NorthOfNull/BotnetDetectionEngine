@@ -9,11 +9,13 @@ class Model:
 	'''
 
 	'''
-	def __init__(self, model_directory, model_file_name, model_metadata):
+	def __init__(self, model_directory, model_file_name, model_metadata, debug):
 		self.model_object = None
 		self.model_metadata = model_metadata
 		self.model_file_name = model_file_name
 		self.rel_model_file_path = model_directory + '/' + self.model_file_name
+
+		self.debug = debug
 
 		self.loading_status = self.load_model()
 
@@ -34,8 +36,9 @@ class Model:
 
 				loading_status = True
 
-				#print("[ Model ] Loaded", self.model_file_name)
-				#print("[ Model ] Model Data =", self.model_metadata)
+				if(self.debug == True):
+					print("[ Model ] Loaded", self.model_file_name)
+					print("[ Model ] Model Data =", self.model_metadata)
 		except:
 			loading_status = False
 
@@ -44,20 +47,13 @@ class Model:
 		return loading_status
 
 	'''
-	Gets the model's specific data from the json data file.
-	'''
-	def get_data(self):
-		
-
-		return 0
-
-	'''
 
 	'''
 	def predict(self, flow):
 		# Make a prediction with the model object as to the classificaiton of the flow 
 		prediction = self.model_object.predict(flow)
 
-		print("[ Model ] Prediction =", prediction)
+		if(self.debug == True):
+			print("[ Model ] Prediction from", self.model_file_name," =", prediction)
 
 		return prediction
