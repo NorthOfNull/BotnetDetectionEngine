@@ -5,4 +5,5 @@ package-lock.json
 test.py
 alerts.log
 flows.binetflow
+Models/bak/*
 /__pycache__/*
