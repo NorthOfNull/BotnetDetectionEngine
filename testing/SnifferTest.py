@@ -76,34 +76,6 @@ class bb_SnifferTest(unittest.TestCase):
         del sniffer
 
 
-    # get_flow
-    #def test_get_flow(self):
-    #    '''
-    #    Testing if get_flow returns a flow from the network (standard behaviour).
-    #    Requires - the sniffer's subprocesses to be running.
-    #    Expected output - A network flow received from the subprocesses.
-    #    '''
-    #    sniffer = Sniffer()
-    #    started = sniffer.start()
-    #
-    #    sniffer.tcpdump_command = 'sudo tcpdump -w -'
-    #    sniffer.argus_command = 'sudo argus -f -r - -w -'
-    #    sniffer.ra_command = "sudo ra -c \',\' -n -s saddr daddr proto sport dport state stos dtos swin dwin shops dhops stime ltime sttl dttl tcprtt synack ackdat spkts dpkts sbytes dbytes sappbytes dappbytes dur pkts bytes appbytes rate srate drate label"
-    #
-    #
-    #    sp = subprocess.Popen("sleep 0.5; ping -c 3 1.1.1.1", shell=True, preexec_fn=os.setsid)
-
-    #    flow = False
-    #    flow = sniffer.get_flow()
-    #
-    #    self.assertTrue(flow)
-
-    #    os.killpg(sp.pid, signal.SIGTERM)
-    #    del sniffer
-
-
-
-
 # White box testing
 class wb_SnifferTest(unittest.TestCase):
     # __init__
@@ -214,30 +186,6 @@ class wb_SnifferTest(unittest.TestCase):
 
 
     # get_flow
-    #def test_get_flow__from_network(self):
-    #    '''
-    #    Testing if get_flow returns a flow from the network.
-    #    Requires - the sniffer's subprocesses to be running.
-    #    Expected output - A network flow received from the subprocesses.
-    #    '''
-    #    sniffer = Sniffer()
-    #    started = sniffer.start()
-    #    sniffer.tcpdump_command = 'sudo tcpdump -w -'
-    #    sniffer.argus_command = 'sudo argus -f -r - -w -'
-    #    sniffer.ra_command = "sudo ra -c \',\' -n -s saddr daddr proto sport dport state stos dtos swin dwin shops dhops stime ltime sttl dttl tcprtt synack ackdat spkts dpkts sbytes dbytes sappbytes dappbytes dur pkts bytes appbytes rate srate drate label"
-    #
-    #    sp = subprocess.Popen("sleep 0.5; ping -c 3 1.1.1.1", shell=True, preexec_fn=os.setsid)
-    #
-    #    flow = False
-    #    flow = sniffer.get_flow()
-    #
-    #    print(flow)
-    #
-    #    self.assertTrue(flow)
-    #    
-    #    os.killpg(sp.pid, signal.SIGTERM)
-    #    del sniffer
-
     def test_get_flow__from_pcap_flow_file(self):
         '''
         Testing if get_flow returns a flow from the the pcap file.
