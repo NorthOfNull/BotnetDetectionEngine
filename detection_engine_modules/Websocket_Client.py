@@ -37,10 +37,10 @@ class Websocket_Client:
 
         try:
             self.socket = websocket.create_connection(self.socket_addr)
-
-            print("[ Websocket_Client ] Connected to Electron!")
         except:
             self.attempt_reconnect()
+            
+        print("[ Websocket_Client ] Connected to Electron!")
 
         return True
 
