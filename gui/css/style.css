@@ -47,7 +47,7 @@ body {
 #nav a:active {
 	position:relative;
 	top:3px;
-	box-shadow:0 0px 5px rgba(0,0,0,0.5);
+	box-shadow:0 -5px 5px rgba(0,0,0,0.5);
 	transition:0.1s;
 }
 
@@ -81,9 +81,11 @@ body {
 
 #nav a .hidden {
 	display:none;
+	opacity:0;
 	animation-name:fade_out;
 	animation-duration:1.5s;
 }
+
 
 @keyframes fade_out {
 	0% {
@@ -93,6 +95,7 @@ body {
 		opacity:0;
 	}
 }
+
 
 #nav #navMenuIcon {
 	margin-top:10px;

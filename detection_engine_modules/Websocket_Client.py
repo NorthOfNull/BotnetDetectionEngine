@@ -1,90 +1,102 @@
+'''
+
+'''
+
 import sys
 import time
 import json
 import websocket
 
-'''
 
-'''
 class Websocket_Client:
-	'''
+    '''
 
-	'''
-	def __init__(self):
-		self.socket_addr = False
-		self.socket = False
+    '''
 
-	'''
+    def __init__(self):
+        '''
 
-	'''
-	def __del__(self):
-		if self.socket is not False:
-			self.socket.close()
+        '''
+        self.socket_addr = False
+        self.socket = False
 
-		print("Deleting Websocket Client.")
+    '''
 
-	'''
-	
-	'''
-	def connect(self, socket_addr):
-		self.socket_addr = socket_addr
+    '''
+    def __del__(self):
+        if self.socket is not False:
+            self.socket.close()
 
-		try:
-			self.socket = websocket.create_connection(self.socket_addr)
+        print("Deleting Websocket Client.")
 
-			print("[ Websocket_Client ] Connected to Electron!")
-		except:
-			raise Exception("[ Websocket_Client ] EXCEPTION - Could not establish a connection")
+    '''
+    
+    '''
+    def connect(self, socket_addr):
+        self.socket_addr = socket_addr
 
-		return True
+        try:
+            self.socket = websocket.create_connection(self.socket_addr)
 
-	'''
-	Sends the labelled_flow and alert_data as a JSON data structure through the websocket 
-	'''
-	def send(self, labelled_flow, alert):
-		if alert is None:
-			# Only package the labelled_flow, since we have no alerts to send
-			data = {"flow": labelled_flow}
-		else:
-			# Package the flow and any alert json data together
-			data = {"flow": labelled_flow,
-			    	"alert": alert}
+            print("[ Websocket_Client ] Connected to Electron!")
+        except:
+            self.attempt_reconnect()
 
-		# Convert to json string
-		data = json.dumps(data)
+        return True
 
-		# Send data
-		try:
-			self.socket.send(data)
-		except:
-			self.attempt_reconnect()
+    '''
+    Sends the labelled_flow and alert_data as a JSON data structure through the websocket 
+    '''
+    def send(self, labelled_flow, alert=None):
+        if alert is None:
+            # Only package the labelled_flow, since we have no alerts to send
+            data = {"flow": labelled_flow}
+        else:
+            # Package the flow and any alert json data together
+            data = {"flow": labelled_flow,
+                    "alert": alert}
 
-	'''
+        # Convert to json string
+        data = json.dumps(data)
 
-	'''
-	def attempt_reconnect(self):
-		# Attempt to re-establish the Websocket connection to the server
-		self.socket = False
-		max_attempts = 5
+        # Send data
+        try:
+            self.socket.send(data)
+        except:
+            self.attempt_reconnect()
+            self.socket.send(data)
 
-		print("[ Websocket_Client ] Connection failed.")
-		print("[ Websocket_Client ] Attempting to re-establish... ")
+        return True 
 
-		for attempt in range(0, max_attempts):
-			try:
-				self.connect(self.socket_addr)
+    '''
 
-				print("[ Websocket_Client ] Connection re-established!")
-				break
-			except:
-				print("[ Websocket_Client ] Attempt ", attempt, "failed...")
-				time.sleep(2)
+    '''
+    def attempt_reconnect(self):
+        '''
+        Attempt to re-establish the Websocket connection to the server
+        '''
+        self.socket = False
+        max_attempts = 5
 
-			if attempt == (max_attempts - 1):
-				print("[ Websocket_Client ] ] EXCEPTION - Could not re-esablish a connection.")
-				print("--- Botnet Detection Engine Terminating ---")
+        print("[ Websocket_Client ] Connection failed.")
+        print("[ Websocket_Client ] Attempting to re-establish... ")
 
-				# Kills the parent process (and thus, the sniffer's subprocesses, as defined in the sniffer destructor)
-				sys.exit()
+        for attempt in range(0, max_attempts):
+            try:
+                self.socket = websocket.create_connection(self.socket_addr)
 
-		return self.socket
+                print("[ Websocket_Client ] Connection re-established!")
+                break
+            except:
+                # Soft exception handling
+                print("[ Websocket_Client ] Attempt", attempt, "failed...")
+                time.sleep(2)
+
+            if attempt == (max_attempts - 1):
+                print("--- Botnet Detection Engine Terminating ---")
+
+                # Kills the parent process (and thus, the sniffer's subprocesses,
+                # as defined in the sniffer destructor)
+                raise Exception("[ Websocket_Client ] ] EXCEPTION - Could not re-esablish a connection.")
+
+        return self.socket

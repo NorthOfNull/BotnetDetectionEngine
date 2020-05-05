@@ -49,7 +49,8 @@ optional arguments:
 ```
 
 ### Testing
+Includes black and white box unit testing, with testing coverage reports for internal modules.
 ```
-sudo python3 unit_test.py
+./test.sh
 ```
 

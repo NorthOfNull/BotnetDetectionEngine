@@ -27,6 +27,7 @@ sudo apt-get install python3-pip
 sudo pip3 install --upgrade pandas
 sudo pip3 install --upgrade scikit-learn==0.22.1
 sudo pip3 install --upgrade websocket-client
+sudo pip3 install --upgrade coverage
 
 
 # Network Sniffer
@@ -35,6 +36,9 @@ sudo apt-get install argus-server
 
 # Node
 sudo apt-get install npm
+
+sudo npm install electron
+sudo npm install ws
 
 
 # Mark run file as executable
