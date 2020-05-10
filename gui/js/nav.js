@@ -30,6 +30,9 @@ function open_nav() {
     let nav_a = nav.querySelectorAll(".navItems a");
     let nav_p = nav.querySelectorAll(".navItems a p");
 
+    // Left mainContainer inset
+    let mainContainer = document.getElementsByClassName("mainContainer");
+    mainContainer[0].style.left = "7%";
 
     nav.style.width = "180px";
 
@@ -50,6 +53,10 @@ function close_nav() {
     let nav = document.getElementById("nav");
     let nav_a = nav.querySelectorAll(".navItems a");
     let nav_p = nav.querySelectorAll(".navItems a p");
+
+    // Left mainContainer inset
+    let mainContainer = document.getElementsByClassName("mainContainer");
+    mainContainer[0].style.left = "2%";
 
     nav.style.width = "50px";
 

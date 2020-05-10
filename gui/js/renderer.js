@@ -37,9 +37,9 @@ window.api.receive("fromMain", (data) => {
         if(data["dcBotFlows"] > 0) {
             botFlowsData.style.color = "red";
         }
-        
+
         // If there are new alerts, update botsTable data
-        if(data["dcReceivedAlerts"].length != 0) {
+        if(data["dcReceivedAlerts"]) {
             add_bot_data(data['dcReceivedAlerts'], botsTable);
         }
 
@@ -49,14 +49,32 @@ window.api.receive("fromMain", (data) => {
     } else if(page == "Alerts") {
         let alertsContainer = document.getElementById("alertsContainer");
 
-        // Remove all elements
-        alertsContainer.innerHTML = "";
-
         // Handling alertsContainer data
-        if(data["dcReceivedAlerts"] != null) {
-            // Render all alert items if more than one alert is present in the received data
-            for(index in data["dcReceivedAlerts"]) {
-                add_alert_item(data["dcReceivedAlerts"][index], alertsContainer);
+        if(data["dcReceivedAlerts"]) {
+            let displayed_index = data["dcBotFlows"];
+
+            if(Array.isArray(data["dcReceivedAlerts"])) {
+                // Page load
+                // Remove any existing content
+                alertsContainer.innerHTML = "";
+
+                for(alert in data["dcReceivedAlerts"]) {
+                    let this_id = Number((displayed_index - data["dcReceivedAlerts"].length ) + alert) + 1;
+
+                    alertsContainer.innerHTML += "<div class='alert' id=" + this_id + ">";
+
+                    add_alert_item(data["dcReceivedAlerts"][alert], this_id);
+
+                    alertsContainer.innerHTML += "</div>";
+                }
+            } else {
+                // Append single alert item
+                alertsContainer.innerHTML += "<div class='alert' id=" + displayed_index + ">";
+
+                add_alert_item(data["dcReceivedAlerts"], displayed_index);
+
+                alertsContainer.innerHTML += "</div>";
+
             }
         }
 
@@ -95,108 +113,3 @@ window.api.receive("fromMain", (data) => {
         add_flow_rows(flow_array, flowLogTable);
     }
 });
-
-// Finds the unique bot IP's from the alerts and counts the instances for each IP
-function add_bot_data(data, botsTable) {
-    let uniqueBotIPs = {};
-
-    botsTable.innerHTML = "";
-
-    for(alert in data) {
-        // Get Bot source IP address
-        botIP = data[alert]['Src']['Addr'];
-
-        // Checking if botIP is already in uniqueBotIPs
-        if(Object.keys(uniqueBotIPs).indexOf(botIP) == -1) {
-            // Add unique IP
-            uniqueBotIPs[botIP] = 1;
-        } else {
-            // IP already in unique IP's
-            // Increment instance count
-            uniqueBotIPs[botIP] += 1;
-        }
-    }
-
-    botsTable.innerHTML += "<tr><th>Bot IP</th><th>Flow Count</th></tr>";
-
-    // Add data to botsTable
-    for(bot in uniqueBotIPs) {
-        botsTable.innerHTML += "<tr><td>" + bot + "</td>" + "\n<td>" + uniqueBotIPs[bot] + "</td></tr>";
-    }
-
-    return 0;
-}
-
-
-function add_alert_item(data, alertsContainer) {
-    let displayed_index = (alertsContainer.childElementCount / 10) + 1;
-
-    // Start button element
-    alertsContainer.innerHTML += "<button type='Button' class='collapse'>Alert #" + displayed_index + "</button>"
-
-    // Start alert_item div
-    alertsContainer.innerHTML += "<div class='alert_item'>";
-
-    // Get alert data keys values into a data string array
-    data_string = [
-            "Source = " + data.Src['Addr'] +  ":" + data.Src['Port'],
-            "Destination = " + data.Dst['Addr'] + ":" + data.Dst['Port'],
-            "Protocol = " + data['Proto'],
-            "DateTime = " + data.Time['StartTime'],
-            "Flow Duration = " + data.Time['Dur'] + " seconds",
-            "Bots = " + data['Bots'],
-            "Comms_protocol = " + data['Comms_protocol'],
-            "Activity = " + data['Activity']
-    ]
-
-    for(row in data_string) {
-        alertsContainer.innerHTML += "<p>" + data_string[row] + "</p>";
-    }
-
-    // Close alert_item div
-    alertsContainer.innerHTML += "</div>";
-
-    return 0;
-}
-
-function add_flow_rows(flow_array, flowLogTable) {
-    // Dynamically network flow rows to the flowLogTable
-    // For each flow in the flow_array data, we add a row
-    for(index in flow_array) {
-        // Get flow from array's index
-        let flow = flow_array[index];
-
-        // Add the as a flow row
-        add_row(flow, flowLogTable);
-    }
-
-    return 0;
-}
-
-function add_row(flow, flowLogTable) {
-    // Handles adding a single flow to the a single row
-    // Split string
-    flow = flow.split(',');
-
-    let row_data_elements = "";
-
-    // Checks if flow is labelled botent
-    let flow_label = flow[flow.length - 1];
-
-    // Add data from each index of the flow to the table row data elements
-    for(col in flow) {
-        let data = flow[col];
-
-        // If botnet flow present, style with red font colour
-        if(flow_label == "Botnet") {
-            row_data_elements += "<td style=\"color:red;\">" + data + "</td>";
-        } else {
-            row_data_elements += "<td>" + data + "</td>";
-        }
-    }
-
-    flowLogTable.innerHTML += "<tr>" + row_data_elements + "</tr>";
-
-    return 0;
-}
-

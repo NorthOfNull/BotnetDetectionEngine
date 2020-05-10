@@ -13,9 +13,10 @@ let mainWindow;
 function createWindow () {
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: 1500,
-        height: 900,
+        width: 1200,
+        height: 800,
         darkTheme: true,
+        icon: path.join(__dirname, 'gui/icons/alert.png'),
         webPreferences: {
             contextIsolation: true, 
             preload: path.join(__dirname, 'gui/js/preload.js')
@@ -77,7 +78,12 @@ wss.on('connection', function connection(ws) {
         parsed_data = dc.add_data(message);
 
         // Get data to send
-        let data = dc.get_all_data();
+        let data = {
+            'dcTotalFlows':dc.total_flow_count,
+            'dcBotFlows':dc.bot_flow_count,
+            'dcReceivedFlows':parsed_data["flow"],
+            'dcReceivedAlerts':parsed_data["alert"]
+        };
 
         // Send updated data_controller data to the renderer instance
         send_data(data);

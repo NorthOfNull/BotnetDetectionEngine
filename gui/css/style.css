@@ -39,15 +39,15 @@ body {
 
 #nav a:hover {
 	position:relative;
-	top:1px;
-	box-shadow:0 5px 5px rgba(0,0,0,0.5);
-	transition:0.1s;
+	bottom:2px;
+	box-shadow:0 10px 5px rgba(0,0,0,0.3);
+	transition:0.5s;
 }
 
 #nav a:active {
 	position:relative;
-	top:3px;
-	box-shadow:0 -5px 5px rgba(0,0,0,0.5);
+	top:2px;
+	box-shadow:0 0px 0px rgba(0,0,0,0.2);
 	transition:0.1s;
 }
 
@@ -115,6 +115,7 @@ body .mainContainer {
 	text-align:center;
 	position:relative;
 	z-index:0;
+	transition-duration:0.5s;
 }
 
 body .mainContainer h1 {
@@ -148,21 +149,69 @@ body .mainContainer h1 {
 }
 
 #botsTable {
-	display:block;
 	width:100%;
-	height:350px;
-	overflow-y:auto;
 	border-collapse:collapse;
-}
-
-#botsTable tr {
-	width:100%;
 }
 
 #botsTable th, td {
 	width:50%;
-	border:1px solid gray;
 }
+
+
+
+/* Alerts */
+.alertsContainer {
+	margin-bottom:10px;
+	overflow-y:auto;
+}
+
+.alert {
+	width:100%;
+	height:30px;
+	margin-bottom:10px;
+	background-color:#0e0e0e8f;
+	box-shadow:0 15px 30px rgba(0,0,0,0.4);
+	border:solid 1px red;
+	transition-duration:0.3s;
+}
+
+.alert .collapse {
+	width:100%;
+	color:black;
+	background-color:#e41313;
+	font-size:24px;
+	padding-left:1em;
+	cursor:pointer;
+	border:solid 0px;
+}
+
+.alert .collapse:focus {
+	outline:none;
+}
+
+.alert .collapse:hover {
+	font-weight:bold;
+}
+
+.alert .collapse img {
+	float:right;
+	rotateX:180deg;
+	transition:0.5s;
+}
+
+.alert > p {
+	display:none;
+	height:12px;
+	word-wrap:wrap;
+	animation-name:fade_in;
+	animation-duration:1.5s;
+}
+
+
+
+
+/* ACtivity Graph */
+
 
 
 /* Network Flow Log */
