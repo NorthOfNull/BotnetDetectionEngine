@@ -1,6 +1,6 @@
-'''
-
-'''
+"""
+The Websocket_Client Module.
+"""
 
 import sys
 import time

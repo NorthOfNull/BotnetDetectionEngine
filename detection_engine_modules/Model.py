@@ -1,6 +1,6 @@
-'''
-
-'''
+"""
+The Model Module.
+"""
 
 import pickle
 

@@ -1,5 +1,6 @@
-'''
-'''
+"""
+The Logger Module.
+"""
 
 class Logger:
     '''

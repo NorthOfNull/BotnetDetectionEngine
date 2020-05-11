@@ -1,6 +1,6 @@
-'''
-
-'''
+"""
+The Detector Module.
+"""
 
 import os
 import sys
@@ -14,10 +14,35 @@ from detection_engine_modules.Websocket_Client import Websocket_Client
 
 
 class Detector:
-    '''
-
-    '''
+    """
+    Detector class handles the sniffing and prediction of network flows via the multiple Model objects instantiated within.
+    Also allows handling of labelled network flows and generates alerts in the event of positive predicitons, which both can be logged
+    to file and sent to a GUI instance via a websocket client.
+    """
     def __init__(self, args):
+        """Constructor for the Detector.
+
+        Takes in parsed command line argument data and sets up the Detector's mode accordingly.
+
+        These modes include sniffing from the network, processing a local .pcap file or reading
+        from a pre-processed network flow file.
+
+        Also loads the relevent models into an object array to facilitate model prediciton. 
+
+        Args:
+            args (dict): Parsed command line arguments to specify the Detector's mode of operation.
+
+        Attributes:
+            gui (bool): Specifies the GUI mode required.
+            logging (bool): Specifies the logging mode required.
+            debug (bool): Specifies the debugging mode required.
+            read (None, string): Specifies the file read mode required.
+            dataset_feature_columns (:obj:'list' of :obj:'str'): The required dataset feature column headings used in the Sniffer and Detector.
+            models (:obj:'list' of :obj:'Model'): List to store successfully instantiated Model objects.
+            sniffer (:obj':'Sniffer'): Sniffer object storage.
+            ws_client (:obj':'Websocket_Client'): Websocket Client object storage.
+            logger (:obj:'Logger'): Logger object storage.
+        """
         self.gui = args['no_gui']
         self.logging = args['no_log']
         self.debug = args['debug']
@@ -61,21 +86,32 @@ class Detector:
             # Initialise Logger instance to handle alert and flow file logging operations
             self.logger = Logger()
 
-    '''
 
-    '''
     def __del__(self):
+        """
+        Detector destructor.
+        """
         if(self.debug == True):
             print("Deleting Detector object and the loaded models.")
 
 
-    '''
-    Main running loop for the detector.
-
-    Gets flows from the network flow sniffer, predicts the behaviour via the models 
-    and outputs the data.
-    '''
     def run(self):
+        """
+        Main running loop for the detector.
+
+        Gets flows from the network flow sniffer, predicts the behaviour via the models 
+        and outputs the labelled network flows and any alert data if encountered.
+
+        If GUI is enabled, sends labelled network flows and alerts via the Websocket_Client
+        to the GUI.
+
+        If logging is enabled, sends the labelled network flows and alerts to the Logger to handle
+        writing to their respective files.
+
+        Returns:
+            0 once main running loop is broken.
+        """
+
         # Start sniffer
         self.sniffer.start()
 
@@ -134,22 +170,29 @@ class Detector:
 
         return 0
 
-    '''
-    De-serialisation of trained Machine Learning models that are contained in the
-    'Models' directory.
-    
-    Loaded objects get stored in the 'self.models' array, along with their descriptive data.
-
-    '''
     def load_models(self):
+        """
+        De-serialisation of trained Machine Learning models that are contained in the
+        'Models' directory.
+
+        Gets the model metadata, from 'model_data.json', and attempts to load the expected models with
+        and passes the relevant metadata to the instantiated Model objects.
+        
+        Successfully loaded Model objects get stored in the 'models' list, and returned.
+
+        Note:
+            If no valid models are found in the valid directory, and thus aren't loaded, the process exits.
+
+        Returns:
+            models (:obj:'list' of :obj:'Model'): Successfully loaded Model instances.
+        """
         models = []
         model_data = None
 
         if(self.debug):
             print("[ Detector ] Loading Models...")
 
-        # Handle nothing being present in directory
-        # Handle directory not being present
+        # Handle directory presence
         assert(os.path.exists(self.model_directory))
 
         # Get model metadata from the json file
@@ -163,8 +206,8 @@ class Detector:
             # Get the model's data
             model_data = model_json_metadata[model_file_name]
 
-            # Instantiate model object, with the full relative directory path, model file name and
-            # it's metadata being passed as an argument.
+            # Attempt to instantiate a Model object, with the full relative 
+            # directory path, model file name and it's metadata being passed as an argument.
             instance_of_model = Model(self.model_directory, model_file_name, model_data, self.debug)
 
             if(instance_of_model.loading_status == True):
@@ -184,12 +227,18 @@ class Detector:
 
         return models
 
-    '''
-    Processes flow_string into the valid DataFrame, with the column headers included.
 
-    @returns The flow DataFrame
-    '''
+
     def process_flow(self, flow_string):
+        """
+        Processes flow_string into the valid DataFrame, with the column headers included.
+
+        Args:
+
+        
+        Returns:
+            processed_flow The flow DataFrame
+        """
         if 'Label' in flow_string:
             # Not a valid flow ('ra' client flow feature headers)
             processed_flow = False
@@ -212,14 +261,16 @@ class Detector:
 
         return processed_flow
 
-    '''
-    Predicts the label of the given network flow data.
-    If the flow is predicted as botnet, we return the data about the models that made the prediction.
 
-    @returns The prediction verdict ('Normal' or 'Botnet')
-    @returns The json model data, in the form of an alert, from positive models.
-    '''
     def predict(self, flow):
+        """
+        Predicts the label of the given network flow data.
+        If the flow is predicted as botnet, we return the data about the models that made the prediction.
+
+        @returns The prediction verdict ('Normal' or 'Botnet')
+        @returns The json model data, in the form of an alert, from positive models.
+        """
+
         # Predict the label of the flow using each loaded model
         original_flow = flow
         alert = None
@@ -260,11 +311,11 @@ class Detector:
 
         return prediction, alert
 
-    '''
+    """
     Generates an alert json data structure from the specific data of each positive prediction model.
 
     @returns The generated alert data in json format.
-    '''
+    """
     def generate_alert(self, flow, prediction, predicted_model_data):
         if(self.debug == True):
             print("[ Detector ] Botnet flow found. Generating alert...")
@@ -335,9 +386,9 @@ class Detector:
 
         return alert
 
-    '''
+    """
 
-    '''
+    """
     def get_model_data(self, data_file_path):
         with open(data_file_path) as data_file:
             try:
@@ -350,9 +401,9 @@ class Detector:
 
         return model_data
 
-    '''
+    """
     
-    '''
+    """
     def flow_feature_exclusion(self, flow):
         # Exclude features that do not get used in the prediction of the flow
         feature_vectors_to_keep = ['sTos', 'dTos', 'SrcWin', 'DstWin', 'sHops', 'dHops', 'sTtl',

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-'''
+"""
 A Flow-based Botnet Detection Engine.
 
-As a Proof-of-Concept application of a Bio-Optimised Machine Learning Models
-to facilitate the detection of bot behaviour via their network flows.
-'''
+As a Proof-of-Concept application of a Bio-Optimised Machine Learning Models,
+to facilitate the detection of bot behaviour via their behavioural network flows.
+"""
 
 import time
 
@@ -13,8 +13,11 @@ from detection_engine_modules.Detector import Detector
 from detection_engine_modules.cmd_line_args import get_cmd_line_args
 
 
-# Program entry point
 if __name__ == "__main__":
+    """
+    Program entry point
+    """
+
     # Parse command line arguments
     args = get_cmd_line_args()
 

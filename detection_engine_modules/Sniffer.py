@@ -1,6 +1,6 @@
-'''
-
-'''
+"""
+The Sniffer Module.
+"""
 
 import os
 import sys

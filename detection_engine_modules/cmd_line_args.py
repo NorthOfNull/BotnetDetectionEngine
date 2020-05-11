@@ -1,15 +1,15 @@
-'''
-
-'''
+"""
+The cmd_line_args Module.
+"""
 
 import argparse
 
 def get_cmd_line_args():
-    '''
+    """
     Parses the command line arguments.
 
     @returns A populated dictionary, containing the parsed arguments from sys.argv
-    '''
+    """
     parser = argparse.ArgumentParser(description=
                                      """The Botnet Detection Engine.
                                      GUI and logging is enabled by default.""")
