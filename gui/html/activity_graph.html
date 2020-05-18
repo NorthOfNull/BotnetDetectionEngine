@@ -3,11 +3,11 @@
 
     <head>
         <meta charset="UTF-8">
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com">
         <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
         <link rel="stylesheet" type="text/css" href="../css/style.css">
         <script type="text/javascript" src="../js/nav.js"></script>
-        <script type="text/javascript" src="../js/renderer.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
         <title>Activity Graph</title>
     </head>
 
@@ -38,11 +38,28 @@
 
         <div class="mainContainer"> 
             <h1>Activity Graph</h1>
+
+            <canvas id="activity_graph"></canvas>
+
+            <div class="sliderContainer">
+                <p>Update Interval (seconds) = <span id="update_interval_value">1</span></p>
+                <input type="range" min="1" max="10" value="1" class="slider" id="update_interval_slider">
+            </div>
+
+
+            <div class="sliderContainer">
+                <p>X-Axis Display Limit = <span id="x_limit_value">20</span></p>
+                <input type="range" min="5" max="50" value="20" class="slider" id="x_limit">
+            </div>
         </div>
+
 
 
         <script>
             toggleNav(called_on_page_init=true);
         </script>
+
+        <script type="text/javascript" src="../js/activity_graph.js"></script>
+        <script type="text/javascript" src="../js/renderer.js"></script>
     </body>
 </html>

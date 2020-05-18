@@ -16,7 +16,7 @@ function add_flow_rows(flow_array, flowLogTable) {
     return 0;
 }
 
-//
+// Adds single row
 function add_row(flow, flowLogTable) {
     // Handles adding a single flow to the a single row
     // Split string
@@ -43,3 +43,24 @@ function add_row(flow, flowLogTable) {
 
     return 0;
 }
+
+
+// Add flowLogTable headers on page load
+document.addEventListener('DOMContentLoaded', function() {
+    let flowLogTable = document.getElementById("flowLogTable");
+
+    // Page load
+    // Format table headings string into split array
+    let table_headings = 'SrcAddr,DstAddr,Proto,Sport,Dport,State,sTos,dTos,SrcWin,DstWin,sHops,dHops,StartTime,LastTime,sTtl,dTtl,TcpRtt,SynAck,AckDat,SrcPkts,DstPkts,SrcBytes,DstBytes,SAppBytes,DAppBytes,Dur,TotPkts,TotBytes,TotAppByte,Rate,SrcRate,DstRate,Label';
+    table_headings = table_headings.split(',');
+
+    // Add table headings
+    let heading_elements = "";
+
+    for(col in table_headings) {
+        let heading = table_headings[col];
+        heading_elements += "<th>" + heading + "</th>"; 
+    }
+
+    flowLogTable.innerHTML += "<tr>" + heading_elements + "</tr>";
+});

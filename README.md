@@ -31,7 +31,7 @@ chmod +x setup.sh
 
 A simple bash script is provided in order to run the flow collection and processing programs, which will then feed the flow information to the Botnet Detection Engine script:
 ```
-./run.sh
+sudo ./run.sh
 ```
 
 ### Usage

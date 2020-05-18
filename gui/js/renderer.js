@@ -53,13 +53,15 @@ window.api.receive("fromMain", (data) => {
         if(data["dcReceivedAlerts"]) {
             let displayed_index = data["dcBotFlows"];
 
-            if(Array.isArray(data["dcReceivedAlerts"])) {
+            if(data["dcReceivedAlerts"].length > 1) {
+                console.log("PAGELOAD")
+
                 // Page load
                 // Remove any existing content
                 alertsContainer.innerHTML = "";
 
                 for(alert in data["dcReceivedAlerts"]) {
-                    let this_id = Number((displayed_index - data["dcReceivedAlerts"].length ) + alert) + 1;
+                    let this_id = Number(alert) + 1;
 
                     alertsContainer.innerHTML += "<div class='alert' id=" + this_id + ">";
 
@@ -67,49 +69,60 @@ window.api.receive("fromMain", (data) => {
 
                     alertsContainer.innerHTML += "</div>";
                 }
-            } else {
+            } else if(data["dcReceivedAlerts"] != ''){
+                if(document.getElementById("no_alert_text")) {
+                    alertsContainer.innerHTML = "";
+                }
+
                 // Append single alert item
                 alertsContainer.innerHTML += "<div class='alert' id=" + displayed_index + ">";
 
                 add_alert_item(data["dcReceivedAlerts"], displayed_index);
 
                 alertsContainer.innerHTML += "</div>";
-
             }
         }
 
 
     // Activity Graph page rendering
     } else if(page == "Activity Graph") {
-        // Counts number of normal and bot flows in a TIME PERIOD
-        // If time period exceeds update time threshold, then plot the values 
+        // We only want to push updates, so we do not update on page load
+        // (which forces all data from Data_Controller to be sent as an array)
+        if(!Array.isArray(data["dcReceivedFlows"])) {
+            // Must ensure that the correct counts are incremented
+            // So, we find if there has been an alert (for the bot count) and a received flow (for the flow count) 
+            increment_bot_count = false;
+            increment_flow_count = false;
+
+            if(data["dcReceivedAlerts"]) {
+                increment_bot_count = true;
+            }
+
+            if(data["dcReceivedFlows"].length > 0) {
+                increment_flow_count = true;
+            }
+
+            update_interval_counts(increment_bot_count, increment_flow_count);
+        }
+
 
 
     // Network Flow Log page rendering
     } else if(page == "Network Flow Log") {
-    	// Flow Log Rendering
-    	let flowLogTable = document.getElementById("flowLogTable");
+        // Flow Log Rendering
+        let flowLogTable = document.getElementById("flowLogTable");
 
-        // Flow data
-    	let flow_array = data["dcReceivedFlows"];
+        console.log(typeof(data["dcReceivedFlows"]))
 
-        flowLogTable.innerHTML = "";
-
-        // Add table headings to the flowLogTable
-        let table_headings = 'SrcAddr,DstAddr,Proto,Sport,Dport,State,sTos,dTos,SrcWin,DstWin,sHops,dHops,StartTime,LastTime,sTtl,dTtl,TcpRtt,SynAck,AckDat,SrcPkts,DstPkts,SrcBytes,DstBytes,SAppBytes,DAppBytes,Dur,TotPkts,TotBytes,TotAppByte,Rate,SrcRate,DstRate,Label';
-        table_headings = table_headings.split(',');
-
-        // Add table headings
-        let heading_elements = "";
-
-        for(col in table_headings) {
-            let heading = table_headings[col];
-            heading_elements += "<th>" + heading + "</th>"; 
+        if(data["dcReceivedFlows"]) {
+            // Handle data input type
+            if(typeof(data["dcReceivedFlows"]) != 'string') {
+                // Call function to handle array of flows and add each row seperately
+                add_flow_rows(data["dcReceivedFlows"], flowLogTable);
+            } else if(typeof(data["dcReceivedFlows"]) == 'string'){
+                // Call function to add a single row
+                add_row(data["dcReceivedFlows"], flowLogTable);
+            }
         }
-
-        flowLogTable.innerHTML += "<tr>" + heading_elements + "</tr>";
-        
-        // Add flow rows to table
-        add_flow_rows(flow_array, flowLogTable);
     }
 });

@@ -13,47 +13,46 @@ let mainWindow;
 function createWindow () {
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: 1200,
+        width: 1280,
         height: 800,
         darkTheme: true,
         icon: path.join(__dirname, 'gui/icons/alert.png'),
         webPreferences: {
+            nodeIntergration: true,
+            nodeIntegrationInWorker: true,
             contextIsolation: true, 
             preload: path.join(__dirname, 'gui/js/preload.js')
         }
-    })
+    });
 
     // and load the index.html of the app
     mainWindow.loadFile('gui/html/index.html');
 
+    // Remove menu bar
+    mainWindow.setMenuBarVisibility(false)
+
     // Open the DevTools
-    mainWindow.webContents.openDevTools()
+    //mainWindow.webContents.openDevTools()
 
     // Set localStorage default state for navbar on creation of the window
     mainWindow.webContents.executeJavaScript('localStorage.setItem("navbar", "closed");')
 
-    // Emitted when the window is closed
+    // Handle close event
     mainWindow.on('closed', function () {
-        // Dereference the window object, usually you would store windows
-        // in an array if your app supports multi windows, this is the time
-        // when you should delete the corresponding element.
+        // Remove BroswerWindow object.
         mainWindow = null;
-    })
+    });
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+// When electron has finished initialising, we call the createWindow function
+// to initilise a new window.
 app.on('ready', createWindow);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
-    // On macOS it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
+    // Handle MacOS platform
     if (process.platform !== 'darwin') app.quit();
 });
-
-
 
 
 // Create data_controller object on window creation

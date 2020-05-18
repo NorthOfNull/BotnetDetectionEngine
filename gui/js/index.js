@@ -33,8 +33,6 @@ function add_bot_data(data, botsTable) {
         botsTable.innerHTML += "<tr><td>" + bot + "</td>" + "\n<td>" + uniqueBotIPs[bot] + "</td></tr>";
     }
 
-    console.log(uniqueBotIPs)
-
     return 0;
 }
 

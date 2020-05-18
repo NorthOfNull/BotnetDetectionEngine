@@ -1,24 +1,7 @@
-# TODO:
-# Setup script for detection software
-# 
-#	Python 3.7:
-#		pip install websocket
-#		pip install scikit-learn=0.22.1
-#		pip install pandas
+#!/bin/bash
 #
-#	FOR SNIFFER:
-#		tcpdump
-#		argus
-#			bison
-#			flex
-#			libcap? - might not need this if is installed via tcpdump install
-#		ra client
-#	
-#	NODE JS ELECTRON STUFF? NPM?
-# 
-
-
-# Superuser
+# Setup script to install necessary dependencies. 
+#
 
 
 # Python
@@ -30,15 +13,20 @@ sudo pip3 install --upgrade websocket-client
 sudo pip3 install --upgrade coverage
 
 
-# Network Sniffer
+# Network Sniffer (argus and ra)
 sudo apt-get install argus-server
 
 
 # Node
+sudo rm -rf node_modules
+sudo mkdir node_modules
+
 sudo apt-get install npm
 
-sudo npm install electron
-sudo npm install ws
+sudo npm install -g electron --allow-root --unsafe-perm
+sudo npm install -g ws --allow-root --unsafe-perm
+
+sudo npm install -g --allow-root --unsafe-perm
 
 
 # Mark run file as executable
