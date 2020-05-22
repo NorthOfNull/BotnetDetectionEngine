@@ -3,6 +3,9 @@
 # Setup script to install necessary dependencies. 
 #
 
+# Get LFS Model files
+sudo apt-get install git-lfs
+sudo git lfs pull
 
 # Python
 sudo apt-get install python3-pip
