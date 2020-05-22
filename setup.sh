@@ -7,10 +7,10 @@
 # Python
 sudo apt-get install python3-pip
 
-sudo pip3 install --upgrade pandas
-sudo pip3 install --upgrade scikit-learn==0.22.1
-sudo pip3 install --upgrade websocket-client
-sudo pip3 install --upgrade coverage
+pip3 install --upgrade pandas
+pip3 install --upgrade scikit-learn==0.22.1
+pip3 install --upgrade websocket-client
+pip3 install --upgrade coverage
 
 
 # Network Sniffer (argus and ra)
@@ -18,16 +18,19 @@ sudo apt-get install argus-server
 
 
 # Node
-sudo rm -rf node_modules
-sudo mkdir node_modules
+rm -rf node_modules
+mkdir node_modules
 
+sudo apt-get install nodejs
 sudo apt-get install npm
 
-sudo npm install -g electron --allow-root --unsafe-perm
-sudo npm install -g ws --allow-root --unsafe-perm
+npm config set unsafe-perm true
 
-sudo npm install -g --allow-root --unsafe-perm
+npm install electron
+npm install ws
+
+sudo npm install -g
 
 
 # Mark run file as executable
-sudo chmod +x ./run.sh
+chmod u+x ./run.sh
