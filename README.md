@@ -8,8 +8,17 @@ This is a prototype ML-enabled Flow-based Botnet Detection Engine, with Graphica
 Intended to be ran on a gateway-connected (network edge) switch, with port mirroring enabled (SPAN) to allow the detector PC to collect all network flows.
 
 ### Dependencies
-
-Requires ARGUS ... etc
+	- git-lfs
+	- python3
+		- pandas
+		- scikit-learn(version 0.22.1)
+		- websocket-client
+		- coverage
+	- argus-server (server and client)
+	- nodejs
+	- npm
+		- electron
+		- ws
 
 These can be installed with the provided setup script.
 
@@ -31,7 +40,7 @@ sudo ./setup.sh
 
 A simple bash script is provided in order to run the flow collection and processing programs, which will then feed the flow information to the Botnet Detection Engine script:
 ```
-./run.sh
+sudo ./run.sh
 ```
 
 ### Usage
