@@ -149,7 +149,7 @@ class wb_DetectorTest(unittest.TestCase):
         flow = detector.process_flow(input_data)
         prediction, alert = detector.predict(flow)
 
-        self.assertTrue(alert)
+        self.assertFalse(alert)
 
     # flow_feature_exclusion
     def test_flow_feature_exclusion__with_invalid_flow(self):
