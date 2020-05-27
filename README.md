@@ -60,6 +60,6 @@ optional arguments:
 ### Testing
 Includes black and white box unit testing, with testing coverage reports for internal modules.
 ```
-./test.sh
+sudo ./test.sh
 ```
 
