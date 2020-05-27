@@ -9,30 +9,48 @@ import websocket
 
 
 class Websocket_Client:
-    '''
+    """
+    The Websocket Client class controls the connection and data transfer to the Websocket Server.
 
-    '''
+    This class will attempt to reconnect the instance to the server in the case of a failed data send attempt.
+
+    If reconnect fails, an exception is raised.
+    """
 
     def __init__(self):
-        '''
+        """
+        The constructor of the Websocket_Client object.
 
-        '''
+        Attributes:
+            socket_addr (string): The address of the websocket server.
+            socket (False or :obj:'WebSocket'): The websocket's connection socket storage variable.
+        """
         self.socket_addr = False
         self.socket = False
 
-    '''
-
-    '''
     def __del__(self):
+        """
+        The Websocket_Client object's destructor.
+
+        Explicitally closes a running socket.
+        """
         if self.socket is not False:
             self.socket.close()
 
         print("Deleting Websocket Client.")
 
-    '''
-    
-    '''
     def connect(self, socket_addr):
+        """
+        This function attempt to create a conneciton to a websocket server.
+
+        If a connection cannot be created, it also attempts the reconnect functionality.
+
+        Args:
+            socket_addr (string): An address of the websocket server that it intends to attempt a connection with.
+
+        Returns:
+            (bool): True if it successfully creates a connection.
+        """
         self.socket_addr = socket_addr
 
         try:
@@ -44,10 +62,19 @@ class Websocket_Client:
 
         return True
 
-    '''
-    Sends the labelled_flow and alert_data as a JSON data structure through the websocket 
-    '''
     def send(self, labelled_flow, alert=None):
+        """
+        Attempts to send the labelled_flow and alert_data as a JSON data structure through the active websocket connection.
+
+        Attempts to reconnect if the data send via the socket fails.
+
+        Args:
+            labelled_flow (string): The labelled flow data string.
+            alert (None or json-formatted string): The alert data, if required to be sent.
+
+        Returns:
+            (bool): True, if the data is sent successfully.
+        """
         if alert is None:
             # Only package the labelled_flow, since we have no alerts to send
             data = {"flow": labelled_flow}
@@ -68,13 +95,17 @@ class Websocket_Client:
 
         return True 
 
-    '''
 
-    '''
     def attempt_reconnect(self):
-        '''
-        Attempt to re-establish the Websocket connection to the server
-        '''
+        """
+        Attempts to re-establish the Websocket connection to the server.
+
+        Makes a maximum of 5 reconnect attempts. If reconnect is successful, the function returns a new socket connnection object; 
+        else, an exception is raised.
+
+        Returns:
+            socket (:obj:'WebSocket'): The WebSocket's connection object, in the case of a successful reconnect attempt. 
+        """
         self.socket = False
         max_attempts = 5
 

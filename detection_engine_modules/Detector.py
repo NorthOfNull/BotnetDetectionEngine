@@ -234,10 +234,10 @@ class Detector:
         Processes flow_string into the valid DataFrame, with the column headers included.
 
         Args:
+            flow_string (string): A string, containing the comma-seperated value network flow data.
 
-        
         Returns:
-            processed_flow The flow DataFrame
+            processed_flow The flow DataFrame; or False in the case of the flow_string being that of a the network flow column headers.
         """
         if 'Label' in flow_string:
             # Not a valid flow ('ra' client flow feature headers)
@@ -251,7 +251,7 @@ class Detector:
                 # Remove the last empty 'label' data field from the flow
                 flow.pop()
 
-            # Fill in empty csv fields
+            # Fill in any empty csv fields
             for i, data in enumerate(flow):
                 if not data:
                     flow[i] = 0
@@ -267,8 +267,12 @@ class Detector:
         Predicts the label of the given network flow data.
         If the flow is predicted as botnet, we return the data about the models that made the prediction.
 
-        @returns The prediction verdict ('Normal' or 'Botnet')
-        @returns The json model data, in the form of an alert, from positive models.
+        Args:
+            flow (:obj:'DataFrame'): The processed flow DataFrame object that is to be predicted by the models.
+
+        Returns:
+            prediction (string): The prediction verdict ('Normal' or 'Botnet')
+            alert (json-formatted string): The json model data, in the form of a generated alert, from the positive models.
         """
 
         # Predict the label of the flow using each loaded model
@@ -311,12 +315,18 @@ class Detector:
 
         return prediction, alert
 
-    """
-    Generates an alert json data structure from the specific data of each positive prediction model.
-
-    @returns The generated alert data in json format.
-    """
     def generate_alert(self, flow, prediction, predicted_model_data):
+        """
+        Generates an alert json data structure from the specific data of each positive prediction model.
+
+        Args:
+            flow (:obj:'DataFrame'): The flow DataFrame that is responsible for the alert's generation.
+            prediction (string): The prediction of the flow.
+            predicted_model_data (json-formatted string): The metadata of the models that made a prediction that caused an alert to be generated.
+
+        Returns:
+            alert (json-formatted string): The generated alert data in json format.
+        """
         if(self.debug == True):
             print("[ Detector ] Botnet flow found. Generating alert...")
 
@@ -386,10 +396,18 @@ class Detector:
 
         return alert
 
-    """
-
-    """
     def get_model_data(self, data_file_path):
+        """
+        Opens and retrieves all of the metadata stored for the models from the metadata file.
+
+        If the file cannot be read, the system exits (cannot operate without loaded model metadata).
+
+        Args:
+            data_file_path (string): The relative filepath and name of the model metadata file.
+
+        Returns:
+            model_data (json-formatted string): The metadata retrieved from the file.
+        """
         with open(data_file_path) as data_file:
             try:
                 # Parse json data from the file
@@ -401,10 +419,16 @@ class Detector:
 
         return model_data
 
-    """
-    
-    """
     def flow_feature_exclusion(self, flow):
+        """
+        Excludes flow DataFrame features that are not used in the prediction of the data.
+
+        Args:
+            flow (:obj:'DataFrame'): The flow's DataFrame that is to be processed via the exclusion process.
+
+        Returns:
+            feature_excluded_flow (:obj:'DataFrame'): The processed flow DataFrame, with the relevant columns maintained. 
+        """
         # Exclude features that do not get used in the prediction of the flow
         feature_vectors_to_keep = ['sTos', 'dTos', 'SrcWin', 'DstWin', 'sHops', 'dHops', 'sTtl',
                                    'dTtl', 'TcpRtt', 'SynAck', 'AckDat', 'SrcPkts', 'DstPkts',

@@ -9,7 +9,7 @@ from subprocess import Popen, PIPE
 
 
 class Sniffer:
-    '''
+    """
     Sniffs raw data from the Network Interface Card (NIC), generally connected to a
     SPAN'd switchport.
 
@@ -20,12 +20,22 @@ class Sniffer:
 
     Alternative behaviour is to run offline ('.pcap' or network flow ('binetflow'
     or '.csv') files).
-    '''
+    """
 
     def __init__(self, read_from_file=False):
-        '''
+        """
+        The constructor of the Sniffer object.
 
-        '''
+        Attributes:
+            tcpdump (None or :obj:'Subprocess'): The subprocess handle for the tcpdump process.
+            argus (None or :obj:'Subprocess'): The subprocess handle for the argus process.
+            ra (None or :obj:'Subprocess'): The subprocess handle for the ra process.
+            read_from_file (False or string): The file that is to be read from, or False if sniffing from the network interface.
+            file (None or :obj:'FILE'): The file handle object, if there is a file to be opened (i.e. not in network sniffing mode).
+            argus_command (string): The argus command to run in the subprocess.
+            tcpdump_command (string): The tcpdump command to run in the subprocess.
+            ra_command (string): The ra command to run in the subprocess.
+        """
         self.tcpdump = None
         self.argus = None
         self.ra = None
@@ -55,14 +65,13 @@ class Sniffer:
 
         self.ra_command = "ra -c \',\' -n -s saddr daddr proto sport dport state stos dtos swin dwin shops dhops stime ltime sttl dttl tcprtt synack ackdat spkts dpkts sbytes dbytes sappbytes dappbytes dur pkts bytes appbytes rate srate drate label"
 
-    '''
 
-    '''
     def __del__(self):
-        '''
-        Sniffer destructor - specifically sends SIGTERM to the subprocess' PGID's.
+        """
+        The Sniffer object's destructor.
 
-        '''
+        Explicitally kills the subprocesses via their parent shell PIDs (their PGIDs).
+        """
         if(self.read_from_file == False):
             if self.tcpdump is not None:
                 # Kill tcpdump
@@ -78,16 +87,21 @@ class Sniffer:
 
         print("Deleting Sniffer object and any relevant running subprocesses.")
 
-    '''
-    Starts the required subprocesses for the sniffer.
-    Operation depends on the sniffer object's attribute values.
 
-    @returns boolean for status of sniffer
-    '''
     def start(self):
-        # BASE RA FIELDS COMMAND
-        #ra_command = 'ra -c \',\' -n -s -state -s -flgs -s +1dur +8state +9stos +10dtos +sbytes'
+        """
+        Starts the required subprocesses for the sniffer.
+        
+        Operation depends on the sniffer object's attribute values (i.e. the mode that it is to run in).
+    
+        Three main modes:
+            - Network sniffer and process mode
+            - .pcap file read and process mode
+            - Pre-processed network flow file read mode
 
+        Returns:
+            started (bool): Status of the sniffer's starting operation.
+        """
         started = False
 
         if(self.file == None):
@@ -118,15 +132,17 @@ class Sniffer:
 
         return started
 
-    '''
-    Reads and returns stdout data from the 'ra' subprocess (for .pcap files or raw tcpdump
-    network data), or by reading the lines in the pre-processed file handle.
-
-    Also sanitises the flow that it receivies (such as filling in empty csv fields).
-
-    @returns a sniffed network flow; from the stdout of the 'ra' subprocess
-    '''
+    
     def get_flow(self):
+        """
+        Reads and returns stdout data from the 'ra' subprocess (for .pcap files or raw tcpdump
+        network data), or by reading the lines in the pre-processed file handle.
+
+        Also sanitises the flow that it receivies (such as filling in empty csv fields).
+
+        Returns:
+            sniffed_flow (string): A sniffed network flow string; from the stdout of the 'ra' subprocess, or a line from file.
+        """
         if self.file is not None:
             # Read line from network flow file handle
             sniffed_flow = self.file.readline()
