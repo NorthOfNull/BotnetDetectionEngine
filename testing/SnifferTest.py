@@ -218,20 +218,17 @@ class wb_SnifferTest(unittest.TestCase):
 
     def test_get_flow__reach_EOF(self):
         '''
-        Testing if get_flow returns False when reaching End-of-file (EOF)
+        Testing if get_flow returns False when reaching End-of-File (EOF)
         Requires - the sniffer's subprocesses to be running and have a valid file handle.
         Expected output - get_flow returns False when EOF is reached.
         '''
         sniffer = Sniffer('testing/testing_alerts.binetflow')
         started = sniffer.start()
 
-        flow = sniffer.get_flow()
-        flow = sniffer.get_flow()
-        flow = sniffer.get_flow()
-        flow = sniffer.get_flow()
-        flow = sniffer.get_flow()
-        flow = sniffer.get_flow()
-        flow = sniffer.get_flow()
+        flow = True
+
+        while(flow):
+            flow = sniffer.get_flow()
 
         self.assertFalse(flow)
 

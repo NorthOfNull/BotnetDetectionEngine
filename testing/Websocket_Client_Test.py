@@ -70,14 +70,30 @@ class bb_ClientTest(unittest.TestCase):
 # White box testing
 class wb_ClientTest(unittest.TestCase):
     # __init__
-    def test(self):
+    def test_init(self):
         '''
         Testing the values stored in the initialised object.
         Input - Nothing
-        Requires - Nothing
-        Expected output - 
+        Requires - A Websocket_Client object.
+        Expected output - Initial false boolean values.
         '''
         websocket_client = Websocket_Client()
 
         self.assertFalse(websocket_client.socket_addr)
         self.assertFalse(websocket_client.socket)
+
+
+    # attempt_reconnect
+    def test_attempt_reconnect(self):
+        '''
+        Testing that the attempt reconnect function correctly returns a socket connection handle.
+        Input - Nothing
+        Requires - A Websocket_Client object, with a valid socket address.
+        Expected output - A true return value, that of the socket connection handle object.
+        '''
+        websocket_client = Websocket_Client()
+        websocket_client.socket_addr = "ws://localhost:5566"
+
+        ret = websocket_client.attempt_reconnect()
+
+        self.assertTrue(ret)

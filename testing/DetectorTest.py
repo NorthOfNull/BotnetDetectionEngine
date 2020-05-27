@@ -1,7 +1,5 @@
 import unittest
 
-import os, time, signal, subprocess
-
 from detection_engine_modules.cmd_line_args import get_cmd_line_args
 from detection_engine_modules.Detector import Detector
 
@@ -21,17 +19,12 @@ class bb_DetectorTest(unittest.TestCase):
         '''
         args = get_cmd_line_args()
 
-        sp = subprocess.Popen("npm start", shell=True, preexec_fn=os.setsid)
-
         detector = False
         detector = Detector(args)
 
         self.assertTrue(detector)
 
         detector.ws_client.socket.close()
-
-        os.killpg(sp.pid, signal.SIGTERM)
-        time.sleep(3)
 
 
 # White box testing
@@ -67,12 +60,9 @@ class wb_DetectorTest(unittest.TestCase):
                 'debug':True,
                 'read':'testing/testing_alerts.binetflow'}
 
-        sp = subprocess.Popen("npm start", shell=True, preexec_fn=os.setsid)
-
         detector = Detector(args)
 
         ret_val = detector.run()
 
         self.assertEquals(ret_val, 0)
 
-        os.killpg(sp.pid, signal.SIGTERM)
