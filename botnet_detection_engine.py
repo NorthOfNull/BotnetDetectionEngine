@@ -27,22 +27,15 @@ if __name__ == "__main__":
     if args['read'] is not False:
         args['no_gui'] = False
 
-
-
-    # TESTING
-    # DELETE ME
-    # DELETE ME
-    # DELETE ME
+    # Testing override
+    # Only uncomment for integration testing where the GUI is running standalone
+    # i.e. running without the run.sh script
     #args['no_gui'] = True
-
-
 
     # Sleep if a GUI instance is starting
     # Ensures adequate time is allocated for the electron instance to load
     if args['no_gui'] == True:
         time.sleep(1.5)
-
-
 
     # Create the detector object, passing in the command line arguments to specify operation
     detector = Detector(args)
