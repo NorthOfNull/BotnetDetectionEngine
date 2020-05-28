@@ -20,8 +20,6 @@ class bb_ModelTest(unittest.TestCase):
         '''
         model = Model('Models', 'Neris(1).model', 'test_metadata', True)
 
-        print("MODELLLLLLLLLLLLLLL TESTTTTTTTTTTTTTTTTTTTTTINGGGGGGGGGGGGGGGGGGGGG")
-
         self.assertTrue(model)
 
 

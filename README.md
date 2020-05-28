@@ -26,10 +26,10 @@ These can be installed with the provided setup script.
 
 Clone this repository:
 ```
-git clone github.com/NorthOfNull/BotnetDetectionEngine
+git clone https://www.github.com/NorthOfNull/BotnetDetectionEngine
 ```
 
-A setup script is provided in order to check for and install any prerequisites required for program execution:
+In the cloned repository, a setup script is provided in order to check for and install the dependencies required for program execution:
 ```
 chmod +x setup.sh
 sudo ./setup.sh
@@ -60,6 +60,6 @@ optional arguments:
 ### Testing
 Includes black and white box unit testing, with testing coverage reports for internal modules.
 ```
-sudo ./test.sh
+./test.sh
 ```
 
