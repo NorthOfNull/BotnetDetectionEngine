@@ -54,8 +54,6 @@ window.api.receive("fromMain", (data) => {
             let displayed_index = data["dcBotFlows"];
 
             if(data["dcReceivedAlerts"].length > 1) {
-                console.log("PAGELOAD")
-
                 // Page load
                 // Remove any existing content
                 alertsContainer.innerHTML = "";

@@ -226,12 +226,10 @@ body .mainContainer h1 {
     transition:0.5s;
 }
 
-.alert > p {
+.alert p {
     display:none;
     height:12px;
     word-wrap:wrap;
-    animation-name:fade_in;
-    animation-duration:1.5s;
 }
 
 
