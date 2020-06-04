@@ -110,8 +110,6 @@ window.api.receive("fromMain", (data) => {
         // Flow Log Rendering
         let flowLogTable = document.getElementById("flowLogTable");
 
-        console.log(typeof(data["dcReceivedFlows"]))
-
         if(data["dcReceivedFlows"]) {
             // Handle data input type
             if(typeof(data["dcReceivedFlows"]) != 'string') {
