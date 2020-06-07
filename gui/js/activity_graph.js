@@ -97,12 +97,9 @@ function update_interval_counts(increment_bot_count, increment_flow_count) {
 // Also calls 'reset_interval_counts'
 function update_chart() {
     // Ensure X-Axis displays a maximum of x_axis_display_limit data points
-    if(chart.data.labels.length > x_axis_display_limit) {
-        // If X-Axis length is too large, remove data from the x-axis label and data array first elements by shifting
-        chart.data.labels.shift();
-        chart.data.datasets[0]['data'].shift();
-        chart.data.datasets[1]['data'].shift();
-    }
+    limit_x_axis_display()
+
+    
 
 
     // Add new interval data to the chart object's datasets
@@ -126,6 +123,25 @@ function update_chart() {
 
     return 0;
 }
+
+
+// Recursive function to limit x_axis data length
+function limit_x_axis_display() {
+    if(chart.data.labels.length >= x_axis_display_limit) {
+        // If X-Axis length is too large, remove data from the x-axis label and data array first elements by shifting
+        chart.data.labels.shift();
+        chart.data.datasets[0]['data'].shift();
+        chart.data.datasets[1]['data'].shift();
+
+        // If the display limit is reduced between updates, recurse the display limiting and recheck
+        if(chart.data.labels.length >= x_axis_display_limit) {
+            limit_x_axis_display();
+        }
+    }
+
+    return 0;
+}
+
 
 // Resets the data interval storage values to default
 function reset_interval_counts() {
@@ -154,7 +170,7 @@ x_axis_slider.oninput = function() {
     x_axis_display_limit = this.value;
 };
 
-// Update chart onload``
+// Update chart onload
 chart.update()
 
 // Set the interval at which the chart updates

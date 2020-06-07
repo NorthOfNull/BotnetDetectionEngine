@@ -170,6 +170,7 @@ class Detector:
 
         return 0
 
+
     def load_models(self):
         """
         De-serialisation of trained Machine Learning models that are contained in the
@@ -226,7 +227,6 @@ class Detector:
             sys.exit()
 
         return models
-
 
 
     def process_flow(self, flow_string):
@@ -315,6 +315,7 @@ class Detector:
 
         return prediction, alert
 
+
     def generate_alert(self, flow, prediction, predicted_model_data):
         """
         Generates an alert json data structure from the specific data of each positive prediction model.
@@ -396,6 +397,7 @@ class Detector:
 
         return alert
 
+
     def get_model_data(self, data_file_path):
         """
         Opens and retrieves all of the metadata stored for the models from the metadata file.
@@ -418,6 +420,7 @@ class Detector:
                 sys.exit()
 
         return model_data
+
 
     def flow_feature_exclusion(self, flow):
         """
