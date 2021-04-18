@@ -237,7 +237,7 @@ class Detector:
             flow_string (string): A string, containing the comma-seperated value network flow data.
 
         Returns:
-            processed_flow The flow DataFrame; or False in the case of the flow_string being that of a the network flow column headers.
+            processed_flow (:obj:'DataFrame'): The flow DataFrame; or False in the case of the flow_string being that of a the network flow column headers.
         """
         if 'Label' in flow_string:
             # Not a valid flow ('ra' client flow feature headers)
